@@ -6,12 +6,12 @@
   <title>Project 0</title>
   <style>
     :root {
-      --ink: #1c1c1c;
-      --muted: #8aeefc;
-      --bg: #d1fffa;
-      --card: hsl(210, 40%, 56%);
-      --border: #eaeae6;
-      --accent: #003d98;
+      --ink: #163b44;
+      --muted: #5b8a94;
+      --bg: #eef8fa;
+      --card: #ffffff;
+      --border: #cfe9ec;
+      --accent: #0891b2;
     }
     * { box-sizing: border-box; }
     body {
@@ -84,6 +84,10 @@
     }
     .gallery.single {
       grid-template-columns: minmax(220px, 420px);
+      justify-content: center;
+    }
+    .gallery.row {
+      grid-template-columns: repeat(4, 1fr);
     }
     figure {
       margin: 0;
@@ -98,8 +102,10 @@
       height: 260px;
       object-fit: cover;
     }
-    .gallery.single figure img {
+    .gallery.single figure img,
+    .gallery.uncropped figure img {
       height: auto;
+      object-fit: contain;
     }
     figcaption {
       padding: 10px 14px;
@@ -126,12 +132,11 @@
         <span class="task-number">Part 1</span>
       </div>
       <h2>Selfie: The Wrong Way vs. The Right Way</h2>
-      <p class="desc">A set of photos exploring composition and framing.</p>
-      <div class="gallery">
-        <figure><img src="media/IMG_9324.jpg" alt="IMG_9324"></figure>
-        <figure><img src="media/IMG_9325.jpg" alt="IMG_9325"></figure>
-        <figure><img src="media/IMG_9326.jpg" alt="IMG_9326"></figure>
+      <div class="gallery row">
         <figure><img src="media/IMG_9327.jpg" alt="IMG_9327"></figure>
+        <figure><img src="media/IMG_9326.jpg" alt="IMG_9326"></figure>
+        <figure><img src="media/IMG_9325.jpg" alt="IMG_9325"></figure>
+        <figure><img src="media/IMG_9324.jpg" alt="IMG_9324"></figure>
       </div>
     </section>
 
@@ -142,7 +147,7 @@
         <span class="task-number">Part 2</span>
       </div>
       <h2>Architectural Perspective Compression</h2>
-      <div class="gallery">
+      <div class="gallery uncropped">
         <figure><img src="media/IMG_9365.jpg" alt="IMG_9365"></figure>
         <figure><img src="media/IMG_9369.jpg" alt="IMG_9369"></figure>
       </div>
