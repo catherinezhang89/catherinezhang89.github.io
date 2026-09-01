@@ -1,1 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Project 0</title>
+  <style>
+    :root {
+      --ink: #1c1c1c;
+      --muted: #6b6b6b;
+      --bg: #fafaf8;
+      --card: #ffffff;
+      --border: #eaeae6;
+      --accent: #b08968;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      margin: 0;
+      padding: 64px 24px 96px;
+      line-height: 1.6;
+    }
+    .page {
+      max-width: 880px;
+      margin: 0 auto;
+    }
+    header {
+      margin-bottom: 56px;
+    }
+    .back {
+      display: inline-block;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      transition: color 0.15s ease;
+    }
+    .back:hover { color: var(--ink); }
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 12px;
+    }
+    .lede {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 60ch;
+      margin: 0;
+    }
+    section.task {
+      margin-bottom: 72px;
+    }
+    section.task:last-child { margin-bottom: 0; }
+    .task-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .task-number {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    .task p.desc {
+      color: var(--muted);
+      margin: 4px 0 24px;
+      max-width: 65ch;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .gallery.single {
+      grid-template-columns: minmax(220px, 420px);
+    }
+    figure {
+      margin: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    figure img {
+      display: block;
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+    }
+    .gallery.single figure img {
+      height: auto;
+    }
+    figcaption {
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+    hr.divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0 0 56px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <a class="back" href="../index.html">← Back to portfolio</a>
+      <h1>Project 0: Becoming Friends with Your Camera</h1>
+    </header>
 
+    <section class="task">
+      <div class="task-header">
+        <span class="task-number">Task 1</span>
+      </div>
+      <h2>Part 1: Selfie: The Wrong Way vs. The Right Way</h2>
+      <p class="desc">A set of photos exploring composition and framing.</p>
+      <div class="gallery">
+        <figure><img src="media/IMG_9324.jpg" alt="IMG_9324"></figure>
+        <figure><img src="media/IMG_9325.jpg" alt="IMG_9325"></figure>
+        <figure><img src="media/IMG_9326.jpg" alt="IMG_9326"></figure>
+        <figure><img src="media/IMG_9327.jpg" alt="IMG_9327"></figure>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section class="task">
+      <div class="task-header">
+        <span class="task-number">Task 2</span>
+      </div>
+      <h2>Part 2: Architectural Perspective Compression</h2>
+      <div class="gallery">
+        <figure><img src="media/IMG_9365.jpg" alt="IMG_9365"></figure>
+        <figure><img src="media/IMG_9369.jpg" alt="IMG_9369"></figure>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section class="task">
+      <div class="task-header">
+        <span class="task-number">Task 3</span>
+      </div>
+      <h2>Part 3: The Dolly Zoom</h2>
+      <div class="gallery single">
+        <figure><img src="media/ezgif.com-gif-maker.gif" alt="Animated result"></figure>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

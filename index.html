@@ -1,16 +1,92 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Portfolio</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CS180 Portfolio</title>
+  <style>
+    :root {
+      --ink: #1c1c1c;
+      --muted: #6b6b6b;
+      --bg: #fafaf8;
+      --card: #ffffff;
+      --border: #eaeae6;
+      --accent: #b08968;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      margin: 0;
+      padding: 64px 24px 96px;
+      line-height: 1.6;
+    }
+    .page {
+      max-width: 880px;
+      margin: 0 auto;
+    }
+    header {
+      margin-bottom: 56px;
+    }
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 12px;
+    }
+    .lede {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 60ch;
+      margin: 0;
+    }
+    .projects {
+      display: grid;
+      gap: 16px;
+    }
+    .project-card {
+      display: block;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      text-decoration: none;
+      color: var(--ink);
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+    .project-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .project-number {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .project-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome to My CS180 Portfolio!</h1>
-    <a href="./1/index.html">Project 1</a>
+  <div class="page">
+    <header>
+      <h1>CS180 Portfolio</h1>
+      <p class="lede">A collection of projects from CS180.</p>
+    </header>
+
+    <div class="projects">
+      <a class="project-card" href="./1/index.html">
+        <span class="project-number">Project 0</span>
+        <span class="project-title">Becoming Friends with Your Camera</span>
+      </a>
+    </div>
+  </div>
 </body>
 </html>
