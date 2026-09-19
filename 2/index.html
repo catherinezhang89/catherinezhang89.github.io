@@ -210,9 +210,9 @@
 
 <div class="wrap">
   <header class="hero">
-    <p class="kicker">CS180 / CS280A &middot; Project 1</p>
+    <p class="kicker">CS180 &middot; Project 1</p>
     <h1 class="title">Colorizing the Prokudin-Gorskii Glass Plates</h1>
-    <p class="dek">Reassembling Sergei Prokudin-Gorskii's century-old red, green, and blue exposures into single color images — first by brute-force search, then with an image pyramid to make it fast enough for full-resolution scans.</p>
+    <p class="dek">Reassembling Sergei Prokudin-Gorskii's century-old red, green, and blue exposures into single color images: first by brute-force search, then with an image pyramid to make it fast enough for full-resolution scans.</p>
     <p class="byline">Catherine Zhang</p>
     <nav class="toc">
       <a href="#single-scale">Single-scale alignment</a>
@@ -225,6 +225,7 @@
   </header>
 
   <section id="intro">
+    <h2>Introduction</h2>
     <p>Each glass plate negative is really three photographs of the same scene, stacked vertically, taken through red, green, and blue filters. Stack the three channels directly and you get a ghostly, misaligned mess — the camera (or the photographer) moved slightly between exposures. The job of this project is to find, for each channel, the <span class="mono">(x, y)</span> shift that brings it back into register with the others.</p>
     <p>The core idea is simple: try a shift, score how well it lines up, keep the best one. The interesting problems all show up once you ask <em>how</em> to search efficiently, <em>how</em> to score a match, and <em>what</em> to do when the naive approach breaks down on full-resolution scans.</p>
   </section>
@@ -440,7 +441,7 @@
   </section>
 
   <footer>
-    Sergei Prokudin-Gorskii's glass plate negatives, digitized by the Library of Congress. Code and write-up by Catherine Zhang for CS180/280A, Fall 2026.
+    Sergei Prokudin-Gorskii's glass plate negatives, digitized by the Library of Congress. Code and write-up by Catherine Zhang for CS180, Fall 2026.
   </footer>
 </div>
 
