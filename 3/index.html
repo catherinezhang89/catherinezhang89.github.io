@@ -90,56 +90,53 @@
 <h3>Part 2.2: Hybrid images</h3>
 <h3>Derek + Nutmeg (full process)</h3>
 <div class="row">
-  <figure><img src="outputs/2.2" alt="Derek original"><figcaption>Original: Derek</figcaption></figure>
-  <figure><img src="outputs/2_2_nutmeg_original.jpg" alt="Nutmeg original"><figcaption>Original: Nutmeg</figcaption></figure>
+  <figure><img src="./2.2/DerekPicture.jpg" alt="Derek original"><figcaption>Original: Derek</figcaption></figure>
+  <figure><img src="./2.2/nutmeg.jpg" alt="Nutmeg original"><figcaption>Original: Nutmeg</figcaption></figure>
 </div>
-<div class="row">
-  <figure><img src="outputs/2_2_derek_aligned.png" alt="Derek aligned"><figcaption>Aligned: Derek (high frequencies)</figcaption></figure>
-  <figure><img src="outputs/2_2_nutmeg_aligned.png" alt="Nutmeg aligned"><figcaption>Aligned: Nutmeg (low frequencies)</figcaption></figure>
-</div>
-<figure><img src="outputs/2_2_fft_figure.png" alt="Fourier analysis"><figcaption>Log-magnitude Fourier transform: input 1, input 2, high-passed, low-passed, hybrid.</figcaption></figure>
-<p><b>Cutoff choice:</b> high-pass σ<sub>1</sub> = <span class="fill">__</span>, low-pass σ<sub>2</sub> = <span class="fill">__</span>. <span class="fill">Larger σ means a lower cutoff; I tried several pairs and picked this one because ...</span></p>
-<figure><img src="outputs/2_2_derek_nutmeg_hybrid.jpg" alt="Hybrid"><figcaption>Final hybrid. Up close: <span class="fill">__</span>. From far away: <span class="fill">__</span>.</figcaption></figure>
+
+<figure><img src="./2.2/log ftt.png" alt="Fourier analysis"><figcaption>Log-magnitude Fourier transform: input 1, input 2, high-passed, low-passed, hybrid.</figcaption></figure>
+<p><b>Cutoff choice:</b> high-pass σ<sub>1</sub> = 4, low-pass σ<sub>2</sub> =8. Larger σ means a lower cutoff; I tried several pairs and picked this one because this one keeps derek's overall silhoette while nutmeg's high freq isn't too dominating.</p>
+<figure><img src="./2.2/derek nutmeg.png" alt="Hybrid"><figcaption>Final hybrid. Up close: nutmeg Far away: Derek</span>.</figcaption></figure>
 
 <h3>Smiski + Labubu</h3>
 <div class="row">
-  <figure><img src="outputs/2_2_smiski.jpg" alt="Smiski"><figcaption>Smiski (high)</figcaption></figure>
-  <figure><img src="outputs/2_2_labubu.jpg" alt="Labubu"><figcaption>Labubu (low)</figcaption></figure>
-  <figure><img src="outputs/2_2_smiski_labubu_hybrid.jpg" alt="Hybrid"><figcaption>Hybrid (σ<sub>1</sub> = 4, σ<sub>2</sub> = 8, <span class="fill">update if changed</span>)</figcaption></figure>
+  <figure><img src="2.2/smiski.jpg" alt="Smiski"><figcaption>Smiski (high)</figcaption></figure>
+  <figure><img src="2.2/labubu.jpg" alt="Labubu"><figcaption>Labubu (low)</figcaption></figure>
+  <figure><img src="2.2/2,5.png" alt="Hybrid"><figcaption>Smibubu σ<sub>1</sub> = 2, σ<sub>2</sub> = 5, </figcaption></figure>
 </div>
 
 <h3>Third hybrid</h3>
 <div class="row">
-  <figure><img src="outputs/2_2_third_a.jpg" alt="Input A"><figcaption><span class="fill">Image A (high)</span></figcaption></figure>
-  <figure><img src="outputs/2_2_third_b.jpg" alt="Input B"><figcaption><span class="fill">Image B (low)</span></figcaption></figure>
-  <figure><img src="outputs/2_2_third_hybrid.jpg" alt="Hybrid"><figcaption>Hybrid (σ<sub>1</sub> = <span class="fill">__</span>, σ<sub>2</sub> = <span class="fill">__</span>)</figcaption></figure>
+  <figure><img src="2.2/oski.jpg" alt="Input A"><figcaption>Oski (high)</figcaption></figure>
+  <figure><img src="2.2/dog.jpg" alt="Input B"><figcaption>Dog (low)</figcaption></figure>
+  <figure><img src="2.2/1,4.png" alt="Hybrid"><figcaption>Osdog (σ<sub>1</sub> = 1, σ<sub>2</sub> = 4)</figcaption></figure>
 </div>
-<p><b>Notes / failures:</b> <span class="fill">Which pairs worked, which didn't, and why.</span></p>
+<p><b>Notes / failures:</b> I tried adding smiski's face onto labubu because it has a simpler sihloette and failed a few times because they didn't align. I fixed it by changing the size of smiski's face.
+For Oski and the dog, I chose a golden retriever because they are my favorite kind, and I saw Oski the other day so I wanted to see what the combination is like. It is not the best combination but I thought it was cool.</p>
 
 <h2>Parts 2.3 and 2.4: Stacks and Multiresolution Blending</h2>
 
 <h3>Part 2.3: Gaussian and Laplacian stacks</h3>
 <p>No downsampling: every level is full size. Level <i>i</i> of the Gaussian stack blurs the original with σ·2<sup>i−1</sup> (σ = 2, 5 levels), using a separable Gaussian for speed. The Laplacian stack stores differences of adjacent Gaussian levels plus the final blurred image, so its levels sum to the original (check: <code>np.allclose</code> = <span class="fill">True</span>).</p>
-<figure><img src="outputs/3_stacks_apple.png" alt="Apple stacks"><figcaption>Apple: Gaussian (top) and Laplacian (bottom) stacks, levels 0-4.</figcaption></figure>
-<figure><img src="outputs/3_stacks_orange.png" alt="Orange stacks"><figcaption>Orange: Gaussian (top) and Laplacian (bottom) stacks, levels 0-4.</figcaption></figure>
-<figure><img src="outputs/2_3_fig342.png" alt="Figure 3.42 recreation"><figcaption>Recreation of Figure 3.42 (a)-(l): rows are levels 0, 2, 4 and the full sum; columns are weighted apple, weighted orange, and their sum.</figcaption></figure>
+<figure><img src="outputs/2.3/3_stacks_apple.png" alt="Apple stacks"><figcaption>Apple: Gaussian (top) and Laplacian (bottom) stacks, levels 0-4.</figcaption></figure>
+<figure><img src="outputs/2.3/3_stacks_orange.png" alt="Orange stacks"><figcaption>Orange: Gaussian (top) and Laplacian (bottom) stacks, levels 0-4.</figcaption></figure>
 
 <h3>Part 2.4: Multiresolution blending</h3>
 <p>Each level is blended with its own mask: <code>Σ mask_i · L<sub>A,i</sub> + (1 − mask_i) · L<sub>B,i</sub></code>, where <code>mask_i</code> is the Gaussian stack of the mask. Fine detail switches sharply at the seam while low frequencies transition gradually.</p>
-<figure><img src="outputs/2_4_oraple.png" alt="Oraple"><figcaption>Oraple: mask, naive blend (hard seam), multiresolution blend, blurriest mask level.</figcaption></figure>
-<figure><img src="outputs/2_4_levels_grid.png" alt="Oraple levels grid"><figcaption>Per-level apple, orange, mask, and result.</figcaption></figure>
+<figure><img src="outputs/2.4/2_4_oraple.png" alt="Oraple"><figcaption>Oraple: mask, naive blend (hard seam), multiresolution blend, blurriest mask level.</figcaption></figure>
+<figure><img src="outputs/2.4/2_4_levels_grid.png" alt="Oraple levels grid"><figcaption>Per-level apple, orange, mask, and result.</figcaption></figure>
 
 <h3>Custom blend 1 (irregular mask, circle): Tahoe inside Madrid</h3>
-<figure><img src="outputs/2_4_tahoe_in_madrid_circle_overview.png" alt="Overview"><figcaption>Inside-mask image, outside-mask image, circular mask, blend.</figcaption></figure>
-<figure><img src="outputs/2_4_tahoe_in_madrid_circle_levels.png" alt="Levels"><figcaption>Laplacian stack process.</figcaption></figure>
-<img src="outputs/2_4_tahoe_in_madrid_circle_result.jpg" alt="Result">
+<figure><img src="outputs/2.4/2_4_tahoe_in_madrid_circle_overview.png" alt="Overview"><figcaption>Inside-mask image, outside-mask image, circular mask, blend.</figcaption></figure>
+<figure><img src="outputs/2.4/2_4_tahoe_in_madrid_circle_levels.png" alt="Levels"><figcaption>Laplacian stack process.</figcaption></figure>
+<img src="outputs/2.4/2_4_tahoe_in_madrid_circle_result.jpg" alt="Result">
 
 <h3>Custom blend 2 (irregular mask, flower): Froakie inside Greninja</h3>
-<figure><img src="outputs/2_4_froakie_in_greninja_flower_overview.png" alt="Overview"><figcaption>Inside-mask image, outside-mask image, flower mask, blend.</figcaption></figure>
-<figure><img src="outputs/2_4_froakie_in_greninja_flower_levels.png" alt="Levels"><figcaption>Laplacian stack process.</figcaption></figure>
-<img src="outputs/2_4_froakie_in_greninja_flower_result.jpg" alt="Result">
+<figure><img src="outputs/2.4/2_4_froakie_in_greninja_circle_overview.png" alt="Overview"><figcaption>Inside-mask image, outside-mask image, flower mask, blend.</figcaption></figure>
+<figure><img src="outputs/2.4/2_4_froakie_in_greninja_circle_levels.png" alt="Levels"><figcaption>Laplacian stack process.</figcaption></figure>
+<img src="outputs/2.4/2_4_froakie_in_greninja_circle_result.jpg" alt="Result">
 
-<p><b>Reflection:</b> <span class="fill">What worked, what artifacts remain (halos, color mismatch, mask edge softness), and what you would change. Mention that my first attempt used color-threshold masks from the character images, which left holes in white and black regions, so I switched to geometric masks.</span></p>
+<p><b>Reflection:</b> My first attempt used color-threshold masks from the character images, which left holes in white and black regions, so I switched to geometric masks. I then tried to change the </span></p>
 
 <h2>The Most Important Thing I Learned</h2>
 <p>The most important idea for me was that an image is a sum of frequency bands, and almost every technique in this project is a way of treating those bands differently. Blurring keeps the low band, subtracting the blur isolates the high band, and a Gaussian pyramid or stack separates the image into many bands at once. Unsharp masking boosts the high band, hybrid images show different bands at different viewing distances, and multiresolution blending uses a sharp seam for fine detail and a wide, soft seam for color and shading. Before this project these felt like unrelated tricks; now they read as the same operation with different choices of which band to keep, scale, or blend.</p>
