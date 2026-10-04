@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 2: Filters, Frequencies, and Blending</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 980px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #222; }
+  h1, h2, h3 { font-family: Helvetica, Arial, sans-serif; }
+  h2 { border-bottom: 2px solid #ccc; padding-bottom: .2rem; margin-top: 3rem; }
+  h3 { margin-top: 2rem; }
+  pre { background: #f5f5f5; padding: .8rem; overflow-x: auto; font-size: .82rem; border-radius: 4px; }
+  img { max-width: 100%; height: auto; display: block; margin: .8rem auto; }
+  figure { margin: 1rem 0; }
+  figcaption { text-align: center; font-size: .9rem; color: #555; }
+  .row { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .row figure { flex: 1 1 280px; }
+  .fill { background: #fff3a8; padding: 0 .25rem; border-radius: 3px; }
+  table { border-collapse: collapse; margin: 1rem auto; }
+  td, th { border: 1px solid #ccc; padding: .3rem .8rem; text-align: center; }
+  code { background: #f0f0f0; padding: 0 .2rem; }
+</style>
+</head>
+<body>
+
+<h1>Project 2: Filters, Frequencies, and Blending</h1>
+
+<h2>Part 1: Filters and Edges</h2>
+
+<h3>Part 1.1: Convolution from scratch</h3>
+<p>Implemented with four loops, then two loops, in numpy only. The kernel is flipped and the image is zero-padded to "same" size (<code>k // 2</code> on top/left, remainder on bottom/right, so even-sized kernels work).</p>
+<pre><code>def conv2d_2loops(img, kernel):
+    kh, kw = kernel.shape
+    H, W = img.shape
+    flipped = np.flip(kernel)
+    pt, pl = kh // 2, kw // 2
+    pb, pr = kh - 1 - pt, kw - 1 - pl
+    padded = np.pad(img, ((pt, pb), (pl, pr)))
+    out = np.zeros((H, W))
+    for i in range(H):
+        for j in range(W):
+            out[i, j] = np.sum(padded[i:i+kh, j:j+kw] * flipped)
+    return out</code></pre>
+
+<p><b>Runtime and boundaries:</b> Scipy is compiled and much faster than the Python loops; the two-loop version is faster than the four loops because the inner products are vectorized. 
+  Boundaries: mine and scipy's both treat pixels outside the image as 0, which darkens borders for the box filter and creates artificial edges for the finite differences. 
+</p>
+
+<figure><img src="outputs/1.1/original.jpg"><figcaption>Selfie: original, 9x9 box, D<sub>x</sub>, D<sub>y</sub>.</figcaption></figure>
+<figure><img src="outputs/1.1/box.jpg">
+<figure><img src="outputs/1.1/dx.jpg">
+<figure><img src="outputs/1.1/dy.jpg">
+
+<h3>Part 1.2: Finite difference operator</h3>
+<p>D<sub>x</sub> = [1, 0, -1], D<sub>y</sub> = [1, 0, -1]<sup>T</sup>. Gradient magnitude is <code>sqrt(gx² + gy²)</code>.</p>
+<div class="row">
+  <figure><img src="outputs/1.2/1_2_figure.png" alt="Cameraman dx"><figcaption>Cameraman, Dx, Dy, Gradient Magnitude, and threshold</figcaption></figure>
+</div>
+<div class="row">
+  <figure><img src="outputs/1.2/thresholds.png" ><figcaption>Different threshold magnitudes</figcaption></figure>
+</div>
+<p><b>Threshold justification:</b> Lower thresholds kept grass and sensor noise; higher ones broke the tripod and coat outline. I chose 0.24 because it kept major shapes like the cameraman and camera without completely showing the minor details.</p>
+
+
+
+<h3>Part 1.3: Derivative of Gaussian</h3>
+<p>Gaussian from <code>cv2.getGaussianKernel</code> with sigma = 2, size 13, 2D kernel from the outer product with its transpose. DoG filters are <code>G * D<sub>x</sub></code> and <code>G * D<sub>y</sub></code>.</p>
+<figure><img src="outputs/1.3/DoG.png"><figcaption>DoG filters (x and y)</figcaption></figure>
+<figure><img src="outputs/1.3/DoG conv.png" alt="DoG results"><figcaption>Single convolution with DoG filters.</figcaption></figure>
+<figure><img src="outputs/1.3/blur.png" alt="Blur then differentiate"><figcaption>Gaussian smoothing, then finite differences (threshold 0.08).</figcaption></figure>
+<p><b>Comparison with finite differences:</b> Smoothing removes grass and speckle noise, edges become thicker and smoother, and gradient magnitudes drop so the threshold is lower. </p>
+
+<h2>Part 2: Applications</h2>
+
+<h3>Part 2.1: Unsharp mask</h3>
+<p>Sharpened = <code>f + α (f − f*g) = f * [(1 + α) e − α g]</code>, where <code>e</code> is the unit impulse. The blur <code>f*g</code> keeps low frequencies, so <code>f − f*g</code> isolates high frequencies, and adding α times them back strengthens edges and texture. The kernel sums to 1, so flat regions are unchanged.</p>
+<pre><code>unsharp_filter = identity + alpha * identity - alpha * gaussian</code></pre>
+<figure><img src="./outputs/2.1/taj_blsh.png" ><figcaption>Taj Mahal: original, blurred, high frequencies (+128 for display), sharpened (α = 0.5, σ = 2).</figcaption></figure>
+<figure><img src="proj2/Casa Batllo.JPG" alt="Other image"><figcaption>Another image of my choice: Casa Batllo.</figcaption></figure>
+<figure><img src="outputs/2.1/2_1_taj_figure.png" alt="Alpha sweep"><figcaption>Varying α (0.5, 1, 2, 4), σ = 2.</figcaption></figure>
+<p><b>Observations:</b> At large alphas, large halos appear. </p>
+<h3>Evaluation: sharp → blur → resharpen</h3>
+<figure><img src="outputs/2.1/2_1_eval.png"" alt="Evaluation"><figcaption>Original, blurred (σ = 2), resharpened (α = 1, σ = 2).</figcaption></figure>
+<table>
+  <tr><th>α</th><td>0.5</td><td>1</td><td>1.5</td><td>2</td><td>3</td><td>4</td></tr>
+  <tr><th>mean abs error vs original</th><td>7.18</td><td>6.63</td><td>6.26</td><td><b>6.09</b></td><td>6.27</td><td>7.02</td></tr>
+</table>
+<p>Blurred baseline: 7.89. Error is lowest near α ≈ 2 and never reaches 0, since blurring permanently removes high-frequency detail that unsharp masking cannot reconstruct.</p>
+
+<h3>Part 2.2: Hybrid images</h3>
+<h3>Derek + Nutmeg (full process)</h3>
+<div class="row">
+  <figure><img src="outputs/2.2" alt="Derek original"><figcaption>Original: Derek</figcaption></figure>
+  <figure><img src="outputs/2_2_nutmeg_original.jpg" alt="Nutmeg original"><figcaption>Original: Nutmeg</figcaption></figure>
+</div>
+<div class="row">
+  <figure><img src="outputs/2_2_derek_aligned.png" alt="Derek aligned"><figcaption>Aligned: Derek (high frequencies)</figcaption></figure>
+  <figure><img src="outputs/2_2_nutmeg_aligned.png" alt="Nutmeg aligned"><figcaption>Aligned: Nutmeg (low frequencies)</figcaption></figure>
+</div>
+<figure><img src="outputs/2_2_fft_figure.png" alt="Fourier analysis"><figcaption>Log-magnitude Fourier transform: input 1, input 2, high-passed, low-passed, hybrid.</figcaption></figure>
+<p><b>Cutoff choice:</b> high-pass σ<sub>1</sub> = <span class="fill">__</span>, low-pass σ<sub>2</sub> = <span class="fill">__</span>. <span class="fill">Larger σ means a lower cutoff; I tried several pairs and picked this one because ...</span></p>
+<figure><img src="outputs/2_2_derek_nutmeg_hybrid.jpg" alt="Hybrid"><figcaption>Final hybrid. Up close: <span class="fill">__</span>. From far away: <span class="fill">__</span>.</figcaption></figure>
+
+<h3>Smiski + Labubu</h3>
+<div class="row">
+  <figure><img src="outputs/2_2_smiski.jpg" alt="Smiski"><figcaption>Smiski (high)</figcaption></figure>
+  <figure><img src="outputs/2_2_labubu.jpg" alt="Labubu"><figcaption>Labubu (low)</figcaption></figure>
+  <figure><img src="outputs/2_2_smiski_labubu_hybrid.jpg" alt="Hybrid"><figcaption>Hybrid (σ<sub>1</sub> = 4, σ<sub>2</sub> = 8, <span class="fill">update if changed</span>)</figcaption></figure>
+</div>
+
+<h3>Third hybrid</h3>
+<div class="row">
+  <figure><img src="outputs/2_2_third_a.jpg" alt="Input A"><figcaption><span class="fill">Image A (high)</span></figcaption></figure>
+  <figure><img src="outputs/2_2_third_b.jpg" alt="Input B"><figcaption><span class="fill">Image B (low)</span></figcaption></figure>
+  <figure><img src="outputs/2_2_third_hybrid.jpg" alt="Hybrid"><figcaption>Hybrid (σ<sub>1</sub> = <span class="fill">__</span>, σ<sub>2</sub> = <span class="fill">__</span>)</figcaption></figure>
+</div>
+<p><b>Notes / failures:</b> <span class="fill">Which pairs worked, which didn't, and why.</span></p>
+
+<h2>Parts 2.3 and 2.4: Stacks and Multiresolution Blending</h2>
+
+<h3>Part 2.3: Gaussian and Laplacian stacks</h3>
+<p>No downsampling: every level is full size. Level <i>i</i> of the Gaussian stack blurs the original with σ·2<sup>i−1</sup> (σ = 2, 5 levels), using a separable Gaussian for speed. The Laplacian stack stores differences of adjacent Gaussian levels plus the final blurred image, so its levels sum to the original (check: <code>np.allclose</code> = <span class="fill">True</span>).</p>
+<figure><img src="outputs/3_stacks_apple.png" alt="Apple stacks"><figcaption>Apple: Gaussian (top) and Laplacian (bottom) stacks, levels 0-4.</figcaption></figure>
+<figure><img src="outputs/3_stacks_orange.png" alt="Orange stacks"><figcaption>Orange: Gaussian (top) and Laplacian (bottom) stacks, levels 0-4.</figcaption></figure>
+<figure><img src="outputs/2_3_fig342.png" alt="Figure 3.42 recreation"><figcaption>Recreation of Figure 3.42 (a)-(l): rows are levels 0, 2, 4 and the full sum; columns are weighted apple, weighted orange, and their sum.</figcaption></figure>
+
+<h3>Part 2.4: Multiresolution blending</h3>
+<p>Each level is blended with its own mask: <code>Σ mask_i · L<sub>A,i</sub> + (1 − mask_i) · L<sub>B,i</sub></code>, where <code>mask_i</code> is the Gaussian stack of the mask. Fine detail switches sharply at the seam while low frequencies transition gradually.</p>
+<figure><img src="outputs/2_4_oraple.png" alt="Oraple"><figcaption>Oraple: mask, naive blend (hard seam), multiresolution blend, blurriest mask level.</figcaption></figure>
+<figure><img src="outputs/2_4_levels_grid.png" alt="Oraple levels grid"><figcaption>Per-level apple, orange, mask, and result.</figcaption></figure>
+
+<h3>Custom blend 1 (irregular mask, circle): Tahoe inside Madrid</h3>
+<figure><img src="outputs/2_4_tahoe_in_madrid_circle_overview.png" alt="Overview"><figcaption>Inside-mask image, outside-mask image, circular mask, blend.</figcaption></figure>
+<figure><img src="outputs/2_4_tahoe_in_madrid_circle_levels.png" alt="Levels"><figcaption>Laplacian stack process.</figcaption></figure>
+<img src="outputs/2_4_tahoe_in_madrid_circle_result.jpg" alt="Result">
+
+<h3>Custom blend 2 (irregular mask, flower): Froakie inside Greninja</h3>
+<figure><img src="outputs/2_4_froakie_in_greninja_flower_overview.png" alt="Overview"><figcaption>Inside-mask image, outside-mask image, flower mask, blend.</figcaption></figure>
+<figure><img src="outputs/2_4_froakie_in_greninja_flower_levels.png" alt="Levels"><figcaption>Laplacian stack process.</figcaption></figure>
+<img src="outputs/2_4_froakie_in_greninja_flower_result.jpg" alt="Result">
+
+<p><b>Reflection:</b> <span class="fill">What worked, what artifacts remain (halos, color mismatch, mask edge softness), and what you would change. Mention that my first attempt used color-threshold masks from the character images, which left holes in white and black regions, so I switched to geometric masks.</span></p>
+
+<h2>The Most Important Thing I Learned</h2>
+<p>The most important idea for me was that an image is a sum of frequency bands, and almost every technique in this project is a way of treating those bands differently. Blurring keeps the low band, subtracting the blur isolates the high band, and a Gaussian pyramid or stack separates the image into many bands at once. Unsharp masking boosts the high band, hybrid images show different bands at different viewing distances, and multiresolution blending uses a sharp seam for fine detail and a wide, soft seam for color and shading. Before this project these felt like unrelated tricks; now they read as the same operation with different choices of which band to keep, scale, or blend.</p>
+<p>Two smaller lessons support this. First, implementation details matter: padding and the kernel flip, matching sigma and kernel size, working in a consistent value range, and clipping before saving or displaying all changed the results, and several of my bugs came from skipping one of them. Second, a good metric is not the same as a good-looking result. Unsharp masking reduced error the most at α ≈ 2, but it can never recover detail the blur removed, so sharpening is an illusion of detail rather than a reconstruction. <span class="fill">Edit this section to reflect your own takeaway, and add a specific moment from the project that changed how you think about it.</span></p>
+
+</body>
+</html>
