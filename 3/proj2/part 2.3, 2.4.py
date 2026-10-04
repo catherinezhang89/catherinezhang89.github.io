@@ -115,11 +115,11 @@ def blend(imA, imB, mask, levels=5, sigma=2):
 # fig.savefig("outputs/2_4_levels_grid.png", dpi=100)
 # plt.show()
 
-madrid = skio.imread("madrid.jpg")
-tahoe = skio.imread("tahoe.jpg")
+madrid = skio.imread("3/proj2/madrid.jpg")
+tahoe = skio.imread("3/proj2/tahoe.jpg")
 
-froakie = skio.imread("froakie.jpg")
-greninja = skio.imread("gren.jpeg")
+froakie = skio.imread("3/proj2/froakie.jpg")
+greninja = skio.imread("3/proj2/gren.jpeg")
 
 from skimage.color import rgb2hsv
 from scipy.ndimage import label, binary_fill_holes, binary_opening, binary_erosion
@@ -182,7 +182,7 @@ def run_blend(inner_path, outer_path, mask_fn, name):
     skio.imsave(f"outputs/2_4_{name}_result.jpg", (result * 255).astype(np.uint8))
     return result
 
-# run_blend("tahoe.jpg",  "madrid.jpg", circle_mask, "tahoe_in_madrid_circle")
-run_blend("froakie.jpg", "gren.jpeg",lambda H, W: circle_mask(H, W, r_frac=0.35, cy_frac=0.32), "froakie_in_greninja_circle")
+run_blend("3/proj2/madrid.jpg", "3/proj2/tahoe.jpg", flower_mask, "madrid_in_tahoe_flower")
+# run_blend("froakie.jpg", "gren.jpeg",lambda H, W: circle_mask(H, W, r_frac=0.35, cy_frac=0.32), "froakie_in_greninja_circle")
 
 plt.show()

@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import sys
 from align_image_code import align_images
 import numpy as np
 from scipy.signal import convolve2d 
@@ -12,17 +13,17 @@ from skimage.color import rgb2gray
 # First load images
 
 # high sf
-im1 = plt.imread("./3/2.2/oski.jpg") / 255.
+im1 = plt.imread("3/outputs/2.2/nutmeg.jpg") / 255.
 
 # low sf
-im2 = plt.imread('./3/2.2/dog.jpg') / 255.
+im2 = plt.imread('3/outputs/2.2/DerekPicture.jpg') / 255.
 
 # Next align images (this code is provided, but may be improved)
 im1_aligned, im2_aligned = align_images(im1, im2)
 
 y0 = 360  # cut off black top
-# im1_aligned = im1_aligned[y0:]
-# im2_aligned = im2_aligned[y0:]
+im1_aligned = im1_aligned[y0:]
+im2_aligned = im2_aligned[y0:]
 
 ## You will provide the code below. Sigma1 and sigma2 are arbitrary 
 ## cutoff values for the high and low frequencies
@@ -58,52 +59,29 @@ def hybrid_image(im1, im2, s1, s2):
     high_freq = im1 - gaussian_blur(im1, s1)
     low_freq = gaussian_blur(im2, s2)
     return high_freq, low_freq, high_freq + low_freq
-sigma1 = 1
-sigma2 = 4
+sigma1 = 4
+sigma2 = 8
 high_freq, low_freq, hybrid = hybrid_image(im1_aligned, im2_aligned, sigma1, sigma2)
 
 
 hybrid_clipped = np.clip(hybrid, 0, 1)
 
 
-# fig, axes = plt.subplots(1, 3, figsize=(15, 6))
-# panels = [("nutmeg (high freq source)", im1_aligned),
-#           ("derek (low freq source)", im2_aligned),
-#           ("dermeg", hybrid_clipped)]
-# for ax, (name, im) in zip(axes, panels):
-#     ax.imshow(np.clip(im, 0, 1))
-#     ax.set_title(name)
-#     ax.axis("off")
-# plt.tight_layout()
-# os.makedirs("outputs", exist_ok=True)
-# fig.savefig("outputs/3_osdog.png", dpi=100, bbox_inches="tight")
-# plt.show()
-
-# skio.imsave("outputs/3_osdog.jpg", (hybrid_clipped * 255).astype(np.uint8))
-
-
-# Figure 1: aligned images
-fig, axes = plt.subplots(1, 2, figsize=(10, 6))
-for ax, (name, im) in zip(axes, [("aligned: image 1 (high freq source)", im1_aligned),
-                                 ("aligned: image 2 (low freq source)", im2_aligned)]):
+fig, axes = plt.subplots(1, 3, figsize=(15, 6))
+panels = [("nutmeg (high freq source)", im1_aligned),
+          ("derek (low freq source)", im2_aligned),
+          ("dermeg", hybrid_clipped)]
+for ax, (name, im) in zip(axes, panels):
     ax.imshow(np.clip(im, 0, 1))
     ax.set_title(name)
     ax.axis("off")
 plt.tight_layout()
-fig.savefig("outputs/2_2_dermeg_aligned.png", dpi=100, bbox_inches="tight")
-
-# Figure 2: filtered results
-fig, axes = plt.subplots(1, 3, figsize=(15, 6))
-panels = [(f"high-passed (sigma1 = {sigma1})", np.clip(high_freq + 0.5, 0, 1)),   # +0.5 so zero is mid-gray
-          (f"low-passed (sigma2 = {sigma2})", np.clip(low_freq, 0, 1)),
-          ("hybrid = high + low", np.clip(hybrid, 0, 1))]
-for ax, (name, im) in zip(axes, panels):
-    ax.imshow(im)
-    ax.set_title(name)
-    ax.axis("off")
-plt.tight_layout()
-fig.savefig("outputs/2_2_dermeg_filtered.png", dpi=100, bbox_inches="tight")
+os.makedirs("outputs", exist_ok=True)
+fig.savefig("outputs/3_osdog.png", dpi=100, bbox_inches="tight")
 plt.show()
+
+skio.imsave("outputs/3_osdog.jpg", (hybrid_clipped * 255).astype(np.uint8))
+
 
 
 # for s1, s2 in [(4, 8), (4, 10), (4, 15)]:
