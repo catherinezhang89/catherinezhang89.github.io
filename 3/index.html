@@ -137,7 +137,12 @@
     <li><a href="#s33">Visual anagrams</a></li>
     <li><a href="#s34">Hybrid images</a></li>
   </ol>
-  <p class="toc-head"><a href="#partb">Part B</a></p>
+   <p class="toc-head">Part B · Flow matching from scratch</p>
+  <ol>
+    <li><a href="#b1">Single-step denoising UNet</a></li>
+    <li><a href="#b2">Flow matching: time and class conditioning</a></li>
+  </ol>
+
 </nav>
 
 <div class="part" id="parta"><span>Part A</span>Using a Pretrained Flow Model</div>
@@ -310,11 +315,115 @@ def euler_sample(x_start, t_start, step_size, velocity):
 <p>Up close, a striped tiger lies on a blue textured ground. The mountain prompt shows up only weakly: at small size, the pale upper half and the dark band below read as a horizon line rather than a peak, so the tiger still dominates. This pair is the less successful of the two.</p>
 </section>
 
-<div class="part" id="partb"><span>Part B</span>Coming soon</div>
 <section id="b">
-<p>Part B results will be added here.</p>
-</section>
 
+<div class="part" id="partb"><span>Part B</span>Flow Matching from Scratch</div>
+ 
+<p>In Part B I train my own models on MNIST (pixels in \([0, 1]\)): first a one-step denoising UNet, then a time-conditioned flow-matching model, and finally a class-conditioned model with classifier-free guidance. All figures were produced by my notebook with seed 180.</p>
+ 
+<section id="b1">
+<h2>1. Training a Single-Step Denoising UNet</h2>
+ 
+<h3>1.1 Implementing the UNet</h3>
+<p>The denoiser is a UNet built from small blocks: <code>Conv</code> (3×3 conv + BatchNorm + GELU, same size), <code>DownConv</code> (stride 2, halves H and W), <code>UpConv</code> (4×4 transposed conv, doubles H and W), <code>Flatten</code> (7×7 average pool to 1×1) and <code>Unflatten</code> (7×7 transposed conv back to 7×7). <code>ConvBlock</code>, <code>DownBlock</code> and <code>UpBlock</code> stack these for more depth. The encoder shrinks the image to gather context (28 → 14 → 7 → 1); the decoder grows it back, and skip connections concatenate encoder features (along the channel dimension) so fine detail is not lost.</p>
+<pre><code>def forward(self, x):
+    a = self.conv_in(x)                                # D  x 28 x 28
+    b = self.down1(a)                                  # D  x 14 x 14
+    c = self.down2(b)                                  # 2D x 7 x 7
+    e = self.unflatten(self.flatten(c))                # 2D x 7 x 7
+    g = self.up1(torch.cat((c, e), dim=1))             # 4D in -> D x 14 x 14
+    i = self.up2(torch.cat((b, g), dim=1))             # 2D in -> D x 28 x 28
+    k = self.conv_out(torch.cat((a, i), dim=1))        # 2D in -> D x 28 x 28
+    return self.final(k)                               # plain Conv2d -> 1 x 28 x 28</code></pre>
+ 
+<h3>1.2 Using the UNet to train a denoiser</h3>
+<p>Training pairs are made on the fly: \(z = x + \sigma\epsilon\), \(\epsilon \sim \mathcal N(0, I)\), and the UNet minimizes \(\mathbb E\,\|D_\theta(z) - x\|^2\). Below, one digit with a single fixed \(\epsilon\) at increasing \(\sigma\):</p>
+<figure class="panel"><img src="media/partb/noising_process.png" alt="One MNIST digit noised at increasing sigma" loading="lazy"><figcaption>σ = 0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0 (left → right)</figcaption></figure>
+ 
+<h3>1.2.1 Training</h3>
+<p>D = 128, batch size 256, Adam with learning rate 1e-4, 5 epochs, \(\sigma = 0.5\). Fresh noise is drawn for every batch, so the network never sees the same noisy image twice.</p>
+<pre><code>images  = images.to(device)
+noisy   = images + noise_level * torch.randn_like(images)   # z = x + σε, fresh every batch
+outputs = model(noisy)
+loss    = criterion(outputs, images)                         # MSE against the clean digits</code></pre>
+<figure class="panel" style="max-width:720px"><img src="media/partb/denoise_loss.png" alt="Training loss of the one-step denoiser" loading="lazy"><figcaption>Training loss (MSE) per optimizer step, with a moving average</figcaption></figure>
+<figure class="panel"><img src="media/partb/denoise_epoch1.png" alt="Test digits after epoch 1" loading="lazy"><figcaption>After epoch 1 · rows: clean, noisy input (σ = 0.5), prediction</figcaption></figure>
+<figure class="panel"><img src="media/partb/denoise_epoch5.png" alt="Test digits after epoch 5" loading="lazy"><figcaption>After epoch 5 · rows: clean, noisy input (σ = 0.5), prediction</figcaption></figure>
+<p>The loss drops steeply in the first few hundred steps and then flattens. After one epoch the test digits are already recognizable but slightly soft; after five they are clean and sharp.</p>
+ 
+<h3>1.2.2 Out-of-distribution testing</h3>
+<figure class="panel"><img src="media/partb/ood_denoise.png" alt="Denoising one test digit at noise levels it was not trained on" loading="lazy"><figcaption>Top: noisy input · bottom: denoised · σ = 0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0</figcaption></figure>
+ 
+<h3>1.2.3 Denoising pure noise</h3>
+<p>Same setup, but the input is pure noise \(z = \epsilon\) with no digit in it, and the target is still a clean training digit.</p>
+<figure class="panel" style="max-width:720px"><img src="media/partb/pure_noise_loss.png" alt="Training loss when denoising pure noise" loading="lazy"><figcaption>Training loss</figcaption></figure>
+<figure class="panel"><img src="media/partb/pure_noise_epoch1.png" alt="Outputs from pure noise after epoch 1" loading="lazy"><figcaption>After epoch 1 · top: input noise · bottom: output</figcaption></figure>
+<figure class="panel"><img src="media/partb/pure_noise_epoch5.png" alt="Outputs from pure noise after epoch 5" loading="lazy"><figcaption>After epoch 5 · top: input noise · bottom: output</figcaption></figure>
+<p>
+  The generated outputs all look the same, very blurry and that is because with MSE loss, the model predicts the point that minimizes the 
+  sum of squared distances to all training samples. In this case, the generated output represents the shape of a digit that minimizes the distance to all digits, or the average of all digits, 
+  which in a sense is the centroid / mean of the distribution.
+
+  </p>
+</section>
+ 
+<section id="b2">
+<h2>2. Training a Flow-Matching Model</h2>
+<p>Instead of jumping from noise to an image in one step, flow matching learns the velocity along the straight path \(x_t = (1-t)x_0 + t x_1\) from noise \(x_0 \sim \mathcal N(0, I)\) (\(t = 0\)) to a training digit \(x_1\) (\(t = 1\)). The network \(u_\theta(x_t, t)\) is trained to predict the flow \(x_1 - x_0\):</p>
+\[L = \mathbb E_{x_0, x_1, t}\,\big\|(x_1 - x_0) - u_\theta(x_t, t)\big\|^2\]
+ 
+<h3>2.1 Adding time conditioning to the UNet</h3>
+<p>The time \(t \in [0, 1]\) enters through two <code>FCBlock</code>s (Linear → GELU → Linear). Each turns the scalar into one value per channel, which multiplies the Unflatten output (2D channels) and the first UpBlock output (D channels).</p>
+<pre><code>t  = t.view(-1, 1)                                  # (N,) -> (N, 1)
+t1 = self.fc1_t(t)[:, :, None, None]                # (N, 2D, 1, 1)
+t2 = self.fc2_t(t)[:, :, None, None]                # (N, D, 1, 1)
+...
+e = self.unflatten(self.flatten(c)) * t1            # modulated unflatten
+g = self.up1(torch.cat((c, e), dim=1)) * t2         # modulated up1</code></pre>
+ 
+<h3>2.2 Training the time-conditioned UNet</h3>
+<pre><code>x1 = images.to(device)
+x0 = torch.randn_like(x1)
+t  = torch.rand(x1.shape[0], device=device)          # one t ~ U[0,1] per image
+tb = t.view(-1, 1, 1, 1)
+xt = (1 - tb) * x0 + tb * x1
+loss = criterion(model(xt, t), x1 - x0)              # predict the flow</code></pre>
+<figure class="panel" style="max-width:720px"><img src="media/partb/time_loss.png" alt="Training loss of the time-conditioned UNet" loading="lazy"><figcaption>Training loss, time-conditioned UNet</figcaption></figure>
+ 
+<h3>2.3 Sampling from the time-conditioned UNet</h3>
+<figure class="panel"><img src="media/partb/time_epoch1.png" alt="Time-conditioned samples after epoch 1" loading="lazy"><figcaption>After epoch 1</figcaption></figure>
+<figure class="panel"><img src="media/partb/time_epoch5.png" alt="Time-conditioned samples after epoch 5" loading="lazy"><figcaption>After epoch 5</figcaption></figure>
+<figure class="panel"><img src="media/partb/time_epoch10.png" alt="Time-conditioned samples after epoch 10" loading="lazy"><figcaption>After epoch 10</figcaption></figure>
+ 
+<h3>2.4 Adding class conditioning</h3>
+<p>Two more <code>FCBlock</code>s take the digit as a one-hot vector. The class embedding scales the features and the time embedding shifts them: <code>unflatten = c1 * unflatten + t1</code> and <code>up1 = c2 * up1 + t2</code>. During training the one-hot vector is replaced by zeros 10% of the time (\(p_{\text{uncond}} = 0.1\)), so the same network also learns an unconditional model for classifier-free guidance.</p>
+<pre><code>c = F.one_hot(c, 10).float()
+if mask is not None:
+    c = c * mask.view(-1, 1)                          # mask == 0 -> "no class"
+...
+e = c1 * self.unflatten(self.flatten(cc)) + t1
+g = c2 * self.up1(torch.cat((cc, e), dim=1)) + t2</code></pre>
+ 
+<h3>2.5 Training the class-conditioned UNet</h3>
+<p>Same settings as 2.2 (D = 64, batch 64, Adam 1e-2 with exponential decay, 10 epochs), plus the 10% class dropout.</p>
+<figure class="panel" style="max-width:720px"><img src="media/partb/class_loss.png" alt="Training loss of the class-conditioned UNet" loading="lazy"><figcaption>Training loss, class-conditioned UNet (with scheduler)</figcaption></figure>
+ 
+<h3>2.6 Sampling with classifier-free guidance</h3>
+<p>300 Euler steps. At every step the model is evaluated with the class and with it masked out, and the two predictions are combined as \(u = u_{\text{uncond}} + \gamma\,(u_{\text{cond}} - u_{\text{uncond}})\) with \(\gamma = 5\). Each row is the digits 0–9.</p>
+<figure class="panel"><img src="media/partb/class_epoch1.png" alt="Class-conditioned samples after epoch 1" loading="lazy"><figcaption>After epoch 1</figcaption></figure>
+<figure class="panel"><img src="media/partb/class_epoch5.png" alt="Class-conditioned samples after epoch 5" loading="lazy"><figcaption>After epoch 5</figcaption></figure>
+<figure class="panel"><img src="media/partb/class_epoch10.png" alt="Class-conditioned samples after epoch 10" loading="lazy"><figcaption>After epoch 10</figcaption></figure>
+<p>Class conditioning is a large improvement over 2.3. Already after epoch 1 every one of the 40 samples is the requested digit, so each row reads 0–9, although some strokes are thick or slightly speckled (for example the 4s and 6s). By epoch 5 the digits are clean, and by epoch 10 they are crisp and consistent, with natural variation in slant and stroke width between the four copies of each digit. Knowing the class removes the ambiguity the time-only model has to resolve on its own, and guidance with γ = 5 pushes each sample firmly toward its class.</p>
+ 
+<h4>Removing the learning-rate scheduler</h4>
+<p>To drop the exponential scheduler, I trained an identical model (same initialization and data order) with a constant learning rate of 1e-3. The scheduled run starts at 1e-2 and decays tenfold to 1e-3 by the last epoch. A constant 1e-2 is too large to refine fine detail late in training, while 1e-3, the value the schedule converges to, is small enough to settle and still large enough for Adam to learn quickly in 10 epochs.</p>
+<figure class="panel" style="max-width:720px"><img src="media/partb/no_scheduler_loss.png" alt="Training loss without the scheduler" loading="lazy"><figcaption>Training loss, constant learning rate 1e-3</figcaption></figure>
+<figure class="panel"><img src="media/partb/no_scheduler_epoch1.png" alt="Class-conditioned samples without scheduler after epoch 1" loading="lazy"><figcaption>No scheduler, after epoch 1</figcaption></figure>
+<figure class="panel"><img src="media/partb/no_scheduler_epoch5.png" alt="Class-conditioned samples without scheduler after epoch 5" loading="lazy"><figcaption>No scheduler, after epoch 5</figcaption></figure>
+<figure class="panel"><img src="media/partb/no_scheduler_epoch10.png" alt="Class-conditioned samples without scheduler after epoch 10" loading="lazy"><figcaption>No scheduler, after epoch 10</figcaption></figure>
+<p>The constant learning rate keeps the same performance. After epoch 10 its samples are as clean and correctly classed as the scheduled run's, and its epoch-1 samples are actually cleaner (smoother strokes, less speckle), because the scheduled run spends the first epoch at the large rate of 1e-2. The final loss is about the same (≈0.09); the no-scheduler curve is only a little noisier, since the step size never shrinks.</p>
+</section>
+ 
 </div>
 </body>
 </html>
