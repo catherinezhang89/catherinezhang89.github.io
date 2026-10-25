@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Project 2: Fun with Filters and Frequencies</title>
+<title>Project 3: The Power of Flow Models</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script>
 <style>
   :root {
     --ink: #163b44;
@@ -12,11 +16,7 @@
     --card: #ffffff;
     --border: #cfe9ec;
     --accent: #0891b2;
-    --chan-r: #d9534f;
-    --chan-g: #2f9e6b;
-    --chan-b: #3b6fd4;
   }
-  img { max-width: 60%; height: auto; display: block; margin: .8rem auto; }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
@@ -28,574 +28,284 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
-  .row { display: flex; gap: 1rem; flex-wrap: wrap; }
-  .row figure { flex: 1 1 280px; min-width: 0; margin: 0; }
-  .row img { width: 100%; max-width: 150%; margin: 0; }
-  .fill { background: #fff3a8; padding: 0 .25rem; border-radius: 3px; }
-  figure { margin: 1rem 0; }
-  figcaption { text-align: center; font-size: .85rem; color: var(--muted); }
-  .row4 {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  width: 100%;
-  /* margin-left: 10%; */
-}
-
-.row4 figure {
-  width: 100%;
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-}
-
-.row4 img {
-  display: block;
-  width: 100%;
-  max-width: none;
-  height: auto;
-  margin: 0;
-  padding: 0;
-}
-
-.row4 figcaption {
-  text-align: center;
-  margin-top: 0.5rem;
-}
-
-  .wrap { max-width: 880px; margin: 0 auto; }
-    header.hero {
-      margin-bottom: 56px;
-    }
-  .hero .kicker {
-    color: var(--accent);
-    font-weight: 600;
-    font-size: 0.95rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    margin: 0 0 12px;
+  .wrap { max-width: 960px; margin: 0 auto; }
+  header.hero { margin-bottom: 40px; }
+  .kicker {
+    color: var(--accent); font-weight: 600; font-size: 0.95rem;
+    letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 12px;
   }
-  h1.title {
-    font-size: 2.4rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.15;
-    margin: 0 0 12px;
-    max-width: 20ch;
+  h1.title { font-size: 2.4rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; margin: 0 0 12px; }
+  .dek { color: var(--muted); font-size: 1.05rem; max-width: 64ch; margin: 0; }
+  .byline { margin-top: 20px; font-size: 0.9rem; color: var(--muted); }
+  .byline a { color: var(--accent); }
+
+  nav.toc {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 22px; margin-bottom: 64px; font-size: 0.92rem;
   }
-  .hero p.dek {
-    color: var(--muted);
-    font-size: 1.05rem;
-    max-width: 60ch;
-    margin: 0;
-  }
-  .hero .byline {
-    margin-top: 20px;
-    font-size: 0.9rem;
-    color: var(--muted);
-  }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+  nav.toc li { color: var(--muted); break-inside: avoid; }
+  @media (max-width: 640px) { nav.toc ol { columns: 1; } }
 
   section { margin-bottom: 72px; }
-  section:last-child { margin-bottom: 0; }
   h2 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin: 0 0 8px;
-    color: var(--ink);
+    font-size: 1.6rem; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em;
+    padding-bottom: 8px; border-bottom: 2px solid var(--border);
   }
-  h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 32px 0 10px;
-    color: var(--ink);
-  }
-  .section-note {
-    color: var(--muted);
-    font-size: 0.9rem;
-    margin: 0 0 24px;
-  }
-p { max-width: none; }
+  h3 { font-size: 1.2rem; font-weight: 600; margin: 48px 0 10px; }
+  h4 { font-size: 1rem; font-weight: 600; margin: 32px 0 8px; }
+  p { max-width: 72ch; }
   p, li { color: var(--muted); font-size: 1rem; }
   strong { color: var(--ink); font-weight: 600; }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
 
-  code, .mono {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 0.875rem;
-  }
   code {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1px 5px;
-    color: var(--ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.86rem;
+    background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; color: var(--ink);
   }
   pre {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 18px;
-    overflow-x: auto;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 0.85rem;
-    color: var(--ink);
-    line-height: 1.55;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; overflow-x: auto; font-size: 0.84rem; line-height: 1.55; color: var(--ink);
   }
   pre code { background: none; border: none; padding: 0; }
 
-  .imgblock {
-    margin: 24px 0;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
+  .grid {
+    display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    gap: 12px; margin: 16px 0 20px; max-width: calc(var(--cols) * 280px);
   }
-  .imgblock img { display: block; width: 100%; height: auto; }
-  .imgblock .placeholder {
-    aspect-ratio: 4/3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--muted);
-    font-size: 0.85rem;
-    text-align: center;
-    padding: 20px;
+  @media (max-width: 720px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  figure { margin: 0; }
+  figure img {
+    display: block; width: 100%; height: auto; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--card);
   }
-  .imgblock figcaption {
-    padding: 10px 14px;
-    font-size: 0.82rem;
-    color: var(--muted);
-    border-top: 1px solid var(--border);
+  figcaption { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 6px; line-height: 1.35; }
+  .rowlabel { font-weight: 600; color: var(--ink); margin: 20px 0 -6px; }
+
+  .note {
+    background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent);
+    border-radius: 8px; padding: 12px 16px; margin: 12px 0 8px; color: var(--muted); max-width: none;
   }
+  .prompt { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.88rem; color: var(--ink); }
 
-  .grid3 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-  @media (max-width: 640px) { .grid3 { grid-template-columns: 1fr; } }
+  table { border-collapse: collapse; margin: 16px 0; font-size: 0.92rem; background: var(--card); border: 1px solid var(--border); }
+  th, td { text-align: left; padding: 8px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--ink); font-weight: 600; }
+  td { color: var(--muted); }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 0.9rem;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  th, td {
-    text-align: left;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-  }
-  tr:last-child td { border-bottom: none; }
-  th {
-    font-weight: 600;
-    color: var(--muted);
-    font-size: 0.78rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    background: var(--bg);
-  }
-  td.num { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--ink); }
-  td.chan-r { color: var(--chan-r); }
-  td.chan-g { color: var(--chan-g); }
-  td.chan-b { color: var(--chan-b); }
-
-  .callout {
-    border-left: 3px solid var(--accent);
-    background: var(--card);
-    border-top: 1px solid var(--border);
-    border-right: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 20px;
-    margin: 24px 0;
-    border-radius: 0 12px 12px 0;
-  }
-  .callout p { margin: 0; font-size: 0.95rem; color: var(--ink); }
-
-  footer {
-    border-top: 1px solid var(--border);
-    margin-top: 72px;
-    padding: 32px 0 0;
-    color: var(--muted);
-    font-size: 0.85rem;
-  }
-
-  .toc {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 18px;
-    font-size: 0.9rem;
-    margin-top: 24px;
-  }
-  .toc a { color: var(--muted); transition: color 0.15s ease; }
-  .toc a:hover { color: var(--ink); text-decoration: none; }
- /* Part 1.3 image layouts */
-
-.dog-filters {
-  display: flex;
-  align-items: flex-start;
-  gap: 2rem;
-  margin: 24px 0;
-}
-
-.dog-filters figure {
-  margin: 0;
-  text-align: center;
-}
-
-.dog-filters figure:first-child {
-  flex: 1;
-}
-
-.dog-filters figure:last-child {
-  flex: 2;
-}
-
-.dog-filters img {
-  width: 100%;
-  max-width: none;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-.dog-results {
-  display: flex;
-  justify-content: center;
-  margin: 32px 0;
-}
-
-.dog-results figure {
-  width: 90%;
-  margin: 0;
-  text-align: center;
-}
-
-.dog-results img {
-  width: 100%;
-  max-width: none;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-.dog-filters figcaption,
-.dog-results figcaption {
-  margin-top: 8px;
-  text-align: center;
-}
-
-  /* Hybrid image layouts */
-.hybrid-inputs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: flex-start;
-  justify-content: center;
-  margin: 24px 0 12px;
-}
-.hybrid-inputs figure {
-  flex: 0 1 auto;
-  margin: 0;
-  text-align: center;
-}
-.hybrid-inputs img {
-  height: 360px;
-  width: auto;
-  max-width: 100%;
-  margin: 0 auto;
-  display: block;
-}
-.hybrid-inputs figcaption { margin-top: 6px; text-align: center; }
-
-.hybrid-result {
-  display: flex;
-  justify-content: center;
-  margin: 12px 0 32px;
-}
-.hybrid-result figure {
-  width: 40%;
-  margin: 0;
-  text-align: center;
-}
-.hybrid-result img {
-  width: 100%;
-  max-width: none;     /* overrides the global 60% cap */
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-.hybrid-result figcaption { margin-top: 8px; text-align: center; }
-.fourier-result {
-  margin: 24px 0 32px;
-  text-align: center;
-}
-
-.fourier-result img {
-  width: 100%;
-  max-width: 1000px;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-.fourier-result figcaption {
-  margin-top: 8px;
-  text-align: center;
-}
+  .hybrid { display: flex; gap: 24px; align-items: flex-end; flex-wrap: wrap; margin: 16px 0 24px; }
+  .hybrid figure:first-child { flex: 0 1 420px; }
+  .hybrid figure.small img { width: 64px; height: 64px; border-radius: 4px; margin: 0 auto; }
+  .hybrid figure.small { width: 160px; }
+  .toc-head { margin: 0 0 6px; font-weight: 600; color: var(--ink); font-size: 0.92rem; }
+  nav.toc ol + .toc-head { margin-top: 12px; }
+  .part { font-size: 2rem; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 40px; padding-top: 8px; color: var(--ink); }
+  .part span { display: block; color: var(--accent); font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+  figure.panel { margin: 16px 0 20px; }
+  figure.panel img { border-radius: 8px; }
+  .hybrid figure.small img { image-rendering: auto; }
 </style>
 </head>
 <body>
-  <div class="wrap">
+<div class="wrap">
 
+<header class="hero">
+  <p class="kicker">CS180 · Project 3</p>
+  <h1 class="title">The Power of Flow Models</h1>
+  <p class="dek"><strong>Part A</strong> explores sampling, guidance, and image editing with the pretrained PixNerd-XXL-P16-T2I text-to-image flow model. <strong>Part B</strong> covers the second half of the project.</p>
+  <p class="byline">Catherine Zhang · <a href="../index.html">← Back to portfolio</a></p>
+</header>
 
-<h1>Project 2: Fun with Filters and Frequencies</h1>
-<h2>Intro</h2>
-<p>CS180 Project 2 — convolution, edge detection, Gaussian/DoG filters, image sharpening, hybrid images, and multiresolution blending.
-</p>
-<h2>Part 1: Fun with Filters</h2>
-<h3>Part 1.1: Convolution from scratch</h3>
-<p>I implemented convolution with four loops, then two loops, in numpy only. The kernel is flipped and the image is zero-padded to "same" size
-  so the output shape is same as the input shape.
-  (<code>k // 2</code> on top/left, remainder on bottom/right, so even-sized kernels work).</p>
-<pre><code>def conv2d_4loops(img, kernel):
-    kh, kw = kernel.shape
-    H, W = img.shape
-    flipped_ker = np.flip(kernel)
+<nav class="toc">
+  <p class="toc-head">Part A · Using a pretrained flow model</p>
+  <ol>
+    <li><a href="#s1">Visualizing training and sampling</a></li>
+    <li><a href="#s2">Classifier-free guidance</a></li>
+    <li><a href="#s31">Image-to-image editing</a></li>
+    <li><a href="#s32">Text-guided editing</a></li>
+    <li><a href="#s33">Visual anagrams</a></li>
+    <li><a href="#s34">Hybrid images</a></li>
+  </ol>
+  <p class="toc-head"><a href="#partb">Part B</a></p>
+</nav>
 
-    pad_top    = kh // 2
-    pad_bottom = kh - 1 - pad_top
-    pad_left   = kw // 2
-    pad_right  = kw - 1 - pad_left
-    padded_img = np.pad(img, ((pad_top, pad_bottom), (pad_left, pad_right)))
-    out = np.zeros((H, W))
-    for i in range(H):
-        for j in range(W):
-            for u in range(kh):
-                for v in range(kw):
-                    out[i][j] += padded_img[i + u][j + v] * flipped_ker[u][v]
-    return out
+<div class="part" id="parta"><span>Part A</span>Using a Pretrained Flow Model</div>
 
+<p>Throughout, I use the linear (optimal-transport) flow-matching convention \(x_t = (1-t)\,\epsilon + t\,x_1\) with \(\epsilon \sim \mathcal N(0, I)\): <strong>\(t = 0\) is pure noise and \(t = 1\) is a clean image</strong>. The model predicts the velocity \(v_\theta(x_t, t, c) \approx x_1 - \epsilon\). All runs use seed 180, Euler step size \(h = 0.02\), and 512×512 images in \([-1, 1]\).</p>
 
-def conv2d_2loops(img, kernel):
-    kh, kw = kernel.shape
-    H, W = img.shape
-    flipped_ker = np.flip(kernel)
-    
-        
-    pad_top    = kh // 2
-    pad_bottom = kh - 1 - pad_top
-    pad_left   = kw // 2
-    pad_right  = kw - 1 - pad_left
-    padded_img = np.pad(img, ((pad_top, pad_bottom), (pad_left, pad_right)))
-    out = np.zeros((H, W))
+<section id="s1">
+<h2>1. Visualizing Training and Sampling</h2>
 
-    for i in range(H):
-        for j in range(W):
-            window = padded_img[i : i + kh, j : j + kw]
-            out[i, j] = np.sum(window * flipped_ker)
-    return out</code></pre>
+<h3>1.1 Constructing noisy training inputs</h3>
+<p>A training input is a point on the straight line between a noise sample and a clean image. This scales the image down as well as adding noise. I sampled one noise tensor \(\epsilon\) and reused it for every \(t\), so all three noisy images lie on the same path. Both endpoints check out exactly: <code>interpolate(image, ε, 0) == ε</code> and <code>interpolate(image, ε, 1) == image</code>.</p>
+<pre><code>def interpolate(image, noise, t):
+    return (1 - t) * noise + t * image</code></pre>
+<figure class="panel"><img src="media/training_inputs.png" alt="Original kitten and three noisy versions" loading="lazy"><figcaption>Original and noisy inputs at <i>t</i> = 0.25, 0.50, 0.75 (same ε for all three)</figcaption></figure>
+<p>At \(t = 0.25\) the kitten is a faint outline under heavy static; by \(t = 0.75\) it is clearly visible with light grain.</p>
 
-<p><b>Runtime and Boundaries:
-</b> Scipy is compiled and much faster than the Python loops; the two-loop version is faster than the four loops because the inner products are vectorized. 
-Both Scipy and my version handles boundaries through zero-padding. No information is added or lost.
-</p>
+<h3>1.2 Classical denoising</h3>
+<p>As a baseline that uses no learned model, I first undo the image scaling by dividing by \(t\), then apply a Gaussian blur: \(\hat x_1 = G_\sigma * (x_t / t)\). For each noise level I tried \(\sigma \in \{1, 2, 4, 8, 16\}\) and kept the one with the lowest MSE against the original.</p>
+<figure class="panel" style="max-width:640px"><img src="media/blur_0.25.png" alt="Noisy kitten and blur result at t = 0.25" loading="lazy"><figcaption>Noisy input and best Gaussian blur · <i>t</i> = 0.25</figcaption></figure><figure class="panel" style="max-width:640px"><img src="media/blur_0.5.png" alt="Noisy kitten and blur result at t = 0.50" loading="lazy"><figcaption>Noisy input and best Gaussian blur · <i>t</i> = 0.50</figcaption></figure><figure class="panel" style="max-width:640px"><img src="media/blur_0.75.png" alt="Noisy kitten and blur result at t = 0.75" loading="lazy"><figcaption>Noisy input and best Gaussian blur · <i>t</i> = 0.75</figcaption></figure>
+<p>The best blur gets weaker as the input gets cleaner (\(\sigma\) = 8, 4, 2). Blur only trades noise for detail: at \(t = 0.25\), \(\sigma = 8\) still leaves large colored blotches, because dividing by \(t\) amplifies the noise 3× and nearby pixels don't average it away.</p>
 
-<p>Using the 2 loop convolution I implemented, I convolved a picture of myself with the Dx and Dy filters, as well as a 9x9 box filter. </p>
+<h3>1.3 One-step denoising</h3>
+<p>The model predicts a velocity, not noise, so a single prediction can be extrapolated over the remaining time \(1 - t\) to estimate the clean endpoint, using the prompt <span class="prompt">"a high quality photo"</span>:</p>
+\[\hat x_1 = x_t + (1 - t)\, v_\theta(x_t, t, c)\]
+<pre><code>def one_step_denoise(x, t, condition, predict_velocity):
+    return x + (1 - t) * predict_velocity(x, t, condition)</code></pre>
+<figure class="panel" style="max-width:900px"><img src="media/one_step_0.25.png" alt="One-step denoising at t = 0.25" loading="lazy"><figcaption>Original, noisy input, and one-step estimate · <i>t</i> = 0.25</figcaption></figure><figure class="panel" style="max-width:900px"><img src="media/one_step_0.5.png" alt="One-step denoising at t = 0.50" loading="lazy"><figcaption>Original, noisy input, and one-step estimate · <i>t</i> = 0.50</figcaption></figure><figure class="panel" style="max-width:900px"><img src="media/one_step_0.75.png" alt="One-step denoising at t = 0.75" loading="lazy"><figcaption>Original, noisy input, and one-step estimate · <i>t</i> = 0.75</figcaption></figure>
+<p>One step is already far better than blur, but it is soft at high noise. From \(t = 0.25\) the model cannot tell which fur pattern produced this noisy input, so it predicts the <em>average</em> direction, and one jump along that average lands on a smoothed kitten. At \(t = 0.75\) there is little ambiguity left and the estimate is almost indistinguishable from the original.</p>
 
-<div class="row4">
-  <figure><img src="outputs/1.1/original.jpg"><figcaption>grayscale selfie</figcaption></figure>
-  <figure><img src="outputs/1.1/box.jpg"><figcaption>9x9 box</figcaption></figure>
-  <figure><img src="outputs/1.1/dx.jpg"><figcaption>D<sub>x</sub></figcaption></figure>
-  <figure><img src="outputs/1.1/dy.jpg"><figcaption>D<sub>y</sub></figcaption></figure>
-</div>
+<h3>1.4 Visualizing velocity</h3>
+<p>Because I kept the original image and noise, the exact update is known: \((1-t)(x_1 - \epsilon) = x_1 - x_t\). Below I compare it with the model's predicted update \((1-t)\hat v\). Both updates share one symmetric color scale (zero = middle gray). The heatmap is the per-pixel RMS difference across RGB, computed on raw values, with the same limits for all three times.</p>
+<pre><code>vt = predict_velocity(x_t, t, condition)
+predicted_update    = (1 - t) * vt
+ground_truth_update = (1 - t) * (clean_image - epsilon)
+error_map = (predicted_update - ground_truth_update).pow(2).mean(dim=1).sqrt()   # (B, H, W)</code></pre>
+<figure style="max-width:260px;margin:16px 0"><img src="media/velocity_original.png" alt="Original kitten"><figcaption>Original image</figcaption></figure>
+<figure class="panel"><img src="media/velocity_0.25.png" alt="Velocity visualization at t = 0.25" loading="lazy"><figcaption>Noisy <i>x<sub>t</sub></i>, predicted update (1−<i>t</i>)<i>v̂</i>, ground-truth update (1−<i>t</i>)(<i>x</i><sub>1</sub>−ε), RGB RMS error · <i>t</i> = 0.25</figcaption></figure><figure class="panel"><img src="media/velocity_0.50.png" alt="Velocity visualization at t = 0.50" loading="lazy"><figcaption>Noisy <i>x<sub>t</sub></i>, predicted update (1−<i>t</i>)<i>v̂</i>, ground-truth update (1−<i>t</i>)(<i>x</i><sub>1</sub>−ε), RGB RMS error · <i>t</i> = 0.50</figcaption></figure><figure class="panel"><img src="media/velocity_0.75.png" alt="Velocity visualization at t = 0.75" loading="lazy"><figcaption>Noisy <i>x<sub>t</sub></i>, predicted update (1−<i>t</i>)<i>v̂</i>, ground-truth update (1−<i>t</i>)(<i>x</i><sub>1</sub>−ε), RGB RMS error · <i>t</i> = 0.75</figcaption></figure>
+<p>The ground-truth update contains the exact noise pattern to be removed, but the predicted update is smooth: nobody can recover the specific random values of \(\epsilon\) from \(x_t\), so the model predicts their expectation. The error is concentrated on high-frequency structure (fur stripes, whiskers, eyes), where many clean images are consistent with the input. It shrinks quickly as \(t\) increases, both because less information is missing and because the update is scaled by \(1 - t\).</p>
 
-<h3>Part 1.2: Finite difference operator</h3>
-<p>In this section, I worked with the cameraman image and used the finite difference as the filter in the x and y direction.</p>
-  <p>
-   To get the partial derivative in x and y of the cameraman image, I converted the image to grayscale and convolved it with the Dx and Dy filters (D<sub>x</sub> = [1, 0, -1], D<sub>y</sub> = [1, 0, -1]<sup>T</sup>).
-   Then I computed the gradient magnitude image using the formula <code>sqrt(gx² + gy²)</code>.
-   Lastly, I experimented with a few values and chose a threshold of 0.24 to binarize the gradient magnitude image.</p>
-
-<div class="row">
-  <figure><img src="outputs/1.2/1_2_figure.png" alt="Cameraman dx"><figcaption>Cameraman, Dx, Dy, Gradient Magnitude, and threshold</figcaption></figure>
-</div>
-<div class="row">
-  <figure><img src="outputs/1.2/thresholds.png" ><figcaption>Different threshold magnitudes</figcaption></figure>
-</div>
-<p><b>Threshold justification:</b> A lower threshold keeps minor details such as grass and sensor noise;
-   higher thresholds cut off parts of the tripod and coat outline. I chose 0.24 because it kept major shapes like the cameraman and camera without completely erasing the minor details.</p>
-
-<h3>Part 1.3: Derivative of Gaussian (DoG) Filter</h3>
-<p> In order to fully remove the noise in the image, we can blur the image using a low-pass filter and then repeat the steps we took to get the 
-  updated Dx, Dy, and gradient magnitude images.</p>
-  <p>I created a 1D gaussian kernel from <code>cv2.getGaussianKernel</code> with sigma = 2, size 13, 2D kernel from the outer product with its transpose. 
-  DoG filters are <code>G * D<sub>x</sub></code> and <code>G * D<sub>y</sub></code>.</p>
- <div class="dog-filters">
-  <figure>
-    <img src="outputs/1.3/gaussian.png">
-    <figcaption>Gaussian filter</figcaption>
-  </figure>
-
-  <figure>
-    <img src="outputs/1.3/DoG.png">
-    <figcaption>DoG filters (x and y)</figcaption>
-  </figure>
-</div>
-<p>After convolving the gaussian with the cameraman, these are the results I got:</p>
-<div class = "dog-results"><figure>
-  <img src="outputs/1.3/blur.png" alt="Blur then differentiate"><figcaption>Gaussian smoothing, then finite differences. <b>threshold 0.08</b>. </figcaption></figure>
-</div>
-<p>We can achieve the same results by applying one filter instead of two by using the derivative of the gaussian filter. To do so, I convolved the gaussian with D<sub>x</sub> and D<sub>y</sub>,
-   then convolved the original cameraman picture with the DoG filters.</p>
-<div class = "dog-results">
-<figure><img src="outputs/1.3/DoG conv.png" alt="DoG results"><figcaption>Single convolution with DoG filters.</figcaption></figure>
-</div>
-
-<p><b>Comparison with finite differences:</b> Overall, smoothing removes grass and speckle noise, and edges become thicker and smoother. Gradient magnitudes 
-  become smaller (gradient magnitude image after gaussian is darker) and so the threshold is lower (0.24 -> 0.08). </p>
-
-<h2>Part 2: Fun with Frequencies!</h2>
-<p>In this section, I constructed blending mechanisms to combine two images together seamlessly using high-pass and low-pass filters.</p>
-
-<h3>Part 2.1: Image "sharpening"</h3>
-<p>Recall that convolving an image with a gaussian filter will blur the image and lose its high frequency components like edges and fine details. 
-  In order to "sharpen" an image, we can subtract the "blurred" version of that image from itself to get the "sharpened" image, or the high frequencies.
-  </p>
-  <p>I defined  Sharpened = <code>f + α (f − f*g) = f * [(1 + α) e − α g]</code>, where <code>e</code> is the unit impulse,
-  <code>f</code> is the original image,  <code>g</code> is the gaussian, and <code>α</code> is the magnitude of sharpening. The blur <code>f*g</code> keeps low frequencies, so <code>f − f*g</code> isolates high frequencies, and adding α times them back strengthens edges and texture. 
-  The kernel sums to 1, so flat regions are unchanged.</p>
-<pre><code>unsharp_filter = identity + alpha * identity - alpha * gaussian</code></pre>
-<div class = "dog-results">
-  <figure><img src="./outputs/2.1/taj_blsh.png" ><figcaption>Taj Mahal: original, blurred, high frequencies (+128 for display), sharpened (α = 0.5, σ = 2).</figcaption></figure>
-</div>
-
-<div class = "dog-results">
-  <figure><img src="outputs/2.1/2_1_taj_figure.png" alt="Alpha sweep"><figcaption>Varying α (0.5, 1, 2, 4), σ = 2.</figcaption></figure>
-</div>
-<p><b>Observations:</b> At large alphas, large halos appear and the edges have stronger contrasts.</p>
-
-<h3>Evaluation: sharp → blur → resharpen</h3>
-
-<p>Another image I chose is a picture of Casa Batllo by Gaudi in Barcelona that I took while in Spain, one of my favorite buildings. 
-  Below I've demonstrated the difference in blurring then sharpening on a sharp image for evaluation:</p>
-  <figure><img src="proj2/Casa Batllo.JPG" width="350" alt="Other image"><figcaption>Another image of my choice: Casa Batllo.</figcaption></figure>
-<div class = "dog-results">
-  <figure><img src="outputs/2.1/2_1_eval.png"" alt="Evaluation"><figcaption>Original, blurred (σ = 2), resharpened (α = 1, σ = 2).</figcaption></figure>
-</div>
-
-  <table>
-  <tr><th>αlpha</th><td>0.5</td><td>1</td><td>1.5</td><td>2</td><td>3</td><td>4</td></tr>
-  <tr><th>mean abs error vs original</th><td>7.18</td><td>6.63</td><td>6.26</td><td><b>6.09</b></td><td>6.27</td><td>7.02</td></tr>
+<h3>1.5 Iterative denoising with Euler sampling</h3>
+<p>Instead of one big jump, take a small step and ask the model again: \(x_{t+h} = x_t + h\, v_\theta(x_t, t, c)\). The velocity is recomputed at every step, and the final step is shortened when needed so the sampler lands exactly on \(t = 1\).</p>
+<pre><code>@torch.inference_mode()
+def euler_sample(x_start, t_start, step_size, velocity):
+    states = [(t_start, x_start)]
+    while t_start &lt; 1:
+        dt = min(step_size, 1 - t_start)          # shorten the final step if needed
+        x_start = x_start + dt * velocity(x_start, t_start)
+        t_start = min(t_start + dt, 1)
+        states.append((t_start, x_start))
+    return x_start, states</code></pre>
+<p>I tested it with a constant velocity field, where Euler integration is exact: starting from \(t = 0\), \(0.5\), and \(0.93\) it takes 50, 25, and 4 steps (the last one shortened to 0.01), ends exactly at \(t = 1\), and returns \(x_{\text{start}} + (1 - t_{\text{start}})\). Then I denoised the saved \(t = 0.5\) kitten with 25 updates:</p>
+<figure class="panel" style="max-width:760px"><img src="media/trajectory.png" alt="Euler denoising trajectory" loading="lazy"><figcaption>Every state of the 25-step Euler trajectory, <i>t</i> = 0.50 → 1.00 (read left to right, top to bottom; rows advance by 0.06)</figcaption></figure>
+<p>Same \(t = 0.5\) input, four methods:</p>
+<figure class="panel"><img src="media/comparison.png" alt="Comparison of denoising methods" loading="lazy"><figcaption>Original · Gaussian blur (1.2) · one-step (1.3) · Euler, 25 steps — all from the same <i>t</i> = 0.5 input</figcaption></figure>
+<table>
+  <tr><th>Method (from <i>t</i> = 0.5)</th><th>MSE vs. original</th></tr>
+  <tr><td>Gaussian blur</td><td>0.0120</td></tr>
+  <tr><td>One-step</td><td>0.0046</td></tr>
+  <tr><td>Euler, 25 steps</td><td>0.0057</td></tr>
 </table>
-<p>Blurred baseline: 7.89. Error is lowest near α ≈ 2 and never reaches 0, since blurring permanently removes high-frequency detail that unsharp masking cannot reconstruct.</p>
+<p>Both model-based methods beat blur by a wide margin. Euler has slightly <em>higher</em> MSE than one-step even though it reaches a fully clean image, because the two optimize different things. The one-step estimate is close to the average of all plausible clean images, which is exactly what minimizes squared error. Euler re-queries the model as the image clears, so it commits to specific fur and whisker details. Those details are realistic but not identical to my photo, and every mismatch counts against MSE.</p>
 
+<h3>1.6 Generating images from noise</h3>
+<p>Setting \(t_{\text{start}} = 0\) and \(x_{\text{start}} \sim \mathcal N(0, I)\) turns the same sampler into a generator: 50 Euler steps with <span class="prompt">"a high quality photo"</span> and no guidance. Seeds 180–184:</p>
+<div class="grid" style="--cols:5"><figure><img src="media/conditional_0.png" alt="Unguided sample, seed 180" loading="lazy"><figcaption>Seed 180</figcaption></figure><figure><img src="media/conditional_1.png" alt="Unguided sample, seed 181" loading="lazy"><figcaption>Seed 181</figcaption></figure><figure><img src="media/conditional_2.png" alt="Unguided sample, seed 182" loading="lazy"><figcaption>Seed 182</figcaption></figure><figure><img src="media/conditional_3.png" alt="Unguided sample, seed 183" loading="lazy"><figcaption>Seed 183</figcaption></figure><figure><img src="media/conditional_4.png" alt="Unguided sample, seed 184" loading="lazy"><figcaption>Seed 184</figcaption></figure></div>
+<p>Every seed produced a portrait of a person, so the model strongly associates this generic prompt with portrait photography. Without guidance the quality is inconsistent: seed 180's face is missing, seed 183's face and skin are badly distorted, and seed 181 has an anatomically odd torso. Seeds 182 and 184 are plausible.</p>
+</section>
 
-<h3>Part 2.2: Hybrid images</h3>
-<p>Hybrid images are a combination of the low spacial frequencies of one image with the high spacial frequencies of another image.
-  When looking at the hybrid image closely, you will see the fine high frequency details; however, once you distance yourself from the image,
-  you will only see the low frequency image.
-  For each input image, the cutoff frequency (sigma) was chosen experimentally:
-   a low sigma for the high-frequency image leaves residual low-frequency content that causes ghosting;
-   a high sigma for the low-frequency image destroys the distiguishable structures.
-</p>
-<h3>Derek + Nutmeg (full process)</h3>
-<div class="hybrid-inputs">
-  <figure><img src="./outputs/2.2/DerekPicture.jpg" alt="Derek original"><figcaption>Original: Derek</figcaption></figure>
-  <figure><img src="./outputs/2.2/nutmeg.jpg" alt="Nutmeg original"><figcaption>Original: Nutmeg</figcaption></figure>
-</div>
-<div class = "hybrid-inputs">
-  <figure><img src = "./outputs/22/dermeg align.png"><figcaption>Aligned images</figcaption</figure>
-</div>
-<div class = "fourier-result">
-  <figure><img src="./outputs/2.2/log ftt.png" width = 4000 alt="Fourier analysis"><figcaption>Log-magnitude Fourier transform: input 1, input 2, high-passed, low-passed, hybrid.</figcaption></figure>
-</div>
+<section id="s2">
+<h2>2. Classifier-Free Guidance</h2>
+<h3>2.1 CFG</h3>
+<p>For each step, the model is evaluated twice at the same \(x_t\) and \(t\): once with the prompt (\(v_c\)) and once with the empty-string prompt (\(v_u\)). Following the notebook's convention, these are combined as</p>
+\[v_{\text{cfg}} = v_c + w\,(v_c - v_u),\]
+<p>so \(w = 0\) is ordinary conditional sampling (checked: <code>cfg_velocity(..., w=0)</code> equals <code>predict_velocity(...)</code> exactly). I used \(w = 7\) and the same five initial noises as Section 1.6.</p>
+<pre><code>def cfg_velocity(x, t, condition, w, predict_velocity, null_condition=''):
+    vc = predict_velocity(x, t, condition)
+    vu = predict_velocity(x, t, null_condition)
+    return vc + w * (vc - vu)</code></pre>
+<div class="grid" style="--cols:5"><figure><img src="media/cfg_0.png" alt="CFG sample, seed 180" loading="lazy"><figcaption>Seed 180 · <i>w</i> = 7</figcaption></figure><figure><img src="media/cfg_1.png" alt="CFG sample, seed 181" loading="lazy"><figcaption>Seed 181 · <i>w</i> = 7</figcaption></figure><figure><img src="media/cfg_2.png" alt="CFG sample, seed 182" loading="lazy"><figcaption>Seed 182 · <i>w</i> = 7</figcaption></figure><figure><img src="media/cfg_3.png" alt="CFG sample, seed 183" loading="lazy"><figcaption>Seed 183 · <i>w</i> = 7</figcaption></figure><figure><img src="media/cfg_4.png" alt="CFG sample, seed 184" loading="lazy"><figcaption>Seed 184 · <i>w</i> = 7</figcaption></figure></div>
+<p>Guidance fixes every failure from Section 1.6: all five are clean, well-lit, anatomically correct studio portraits. Each seed keeps the rough layout of its unguided version (seed 182 still has the hand raised to the cheek). The cost is diversity: the guided images share the same centered, front-facing composition, dark or plain backgrounds, and high contrast, so they look much more alike than the unguided set did.</p>
+</section>
 
-<p><b>Cutoff choice:</b> high-pass σ<sub>1</sub> = 4, low-pass σ<sub>2</sub> =8. Larger σ means a lower cutoff;
-   I tried several pairs and picked this one because this one keeps Derek's overall silhoette while nutmeg's structures aren't too dominating.</p>
-<div class = "hybrid-result">
+<section id="s3">
+<h2>3. Creative Applications</h2>
+<p>All results in this section use \(h = 0.02\), \(w = 7\), and the empty prompt for the unconditional branch.</p>
 
-   <figure><img src="./outputs/22/3_dermeg.jpg" alt="Hybrid"><figcaption>Final hybrid. Up close: nutmeg Far away: Derek</span>.</figcaption></figure>
-</div>
+<h3 id="s31">3.1 Image-to-image editing (SDEdit)</h3>
+<p>To edit an image, I push it partway back toward noise and let the guided sampler bring it back onto the manifold of natural images. A smaller \(t_{\text{start}}\) adds more noise, so the model has to invent more.</p>
+<pre><code>def edit(image, noise, t_start, condition, predict_velocity, w=7, step_size=0.02):
+    noised_image = interpolate(image, noise, t_start)
+    guided_v = lambda x, t: cfg_velocity(x, t, condition, w, predict_velocity, null_condition)
+    x_1, _ = euler_sample(noised_image, t_start, step_size, guided_v)
+    return x_1</code></pre>
+<p>Prompt: <span class="prompt">"a high quality photo"</span>. Starting times run from most noise (left) to least.</p>
 
-<h3>Smiski + Labubu</h3>
-<div class="hybrid-inputs">
-  <figure><img src="./outputs/2.2/smiski.jpg" alt="Smiski"><figcaption>Smiski (high)</figcaption></figure>
-  <figure><img src="./outputs/2.2/labubu.jpg" alt="Labubu"><figcaption>Labubu (low)</figcaption></figure>
-  </div>
-  <div class = "hybrid-result">  
-    <figure><img src="./outputs/22/3_smibubu.jpg" alt="Hybrid"><figcaption>Smibubu σ<sub>1</sub> = 2, σ<sub>2</sub> = 5, </figcaption></figure>
-</div>
+<h4>Campanile</h4>
+<figure class="panel"><img src="media/edit_campanile.png" alt="Campanile edits" loading="lazy"><figcaption>Original, then <i>t</i><sub>start</sub> = 0.02, 0.04, 0.06 (top row) and 0.10, 0.14, 0.25, 0.50 (bottom row)</figcaption></figure>
+<p>At \(t_{\text{start}} = 0.02\) only a pale vertical shape against blue survives, and the model turns it into a rounded white object. From 0.04 to 0.14 it becomes a plain white obelisk among trees, gaining a window at the top. The belfry arches return at 0.25, and the clock face and stone texture return at 0.50.</p>
 
+<h4>My image 1: kitten</h4>
+<figure class="panel"><img src="media/edit_my_image_1.png" alt="Kitten edits" loading="lazy"><figcaption>Original, then <i>t</i><sub>start</sub> = 0.02, 0.04, 0.06 (top row) and 0.10, 0.14, 0.25, 0.50 (bottom row)</figcaption></figure>
+<p>The lowest starting times keep only the overall color and the bright center, which the model reads as portraits of people. At 0.06–0.10 a gray, furry animal appears but with the wrong face. A kitten appears at 0.14 with different markings, and by 0.25 the result is close to my photo.</p>
 
-<h3>Third hybrid</h3>
-<div class="hybrid-inputs">
-  <figure><img src="./outputs/2.2/oski.jpg" alt="Input A"><figcaption>Oski (high)</figcaption></figure>
-  <figure><img src="./outputs/2.2/dog.jpg" alt="Input B"><figcaption>Dog (low)</figcaption></figure>
-  </div>
-  <div class = "hybrid-result">
-  <figure><img src="./outputs/22/3_osdog.jpg" alt="Hybrid"><figcaption>Osdog (σ<sub>1</sub> = 1, σ<sub>2</sub> = 4)</figcaption></figure>
-</div>
-<p><b>Notes / failures:</b> I chose smiski to be the high frequency image because it has a simpler sihloette and failed a few times because smiski and labubu do not have a similar face shape and the hybrid didn't align. 
-  I fixed it by changing the size of smiski's face.
-  For Oski and the dog, I chose a golden retriever because I like goldens, and I saw Oski the other day so I wanted to see what the combination is like. 
-  It is not the best combination but I thought it was cool.</p>
+<h4>My image 2: cartoon bear</h4>
+<figure class="panel"><img src="media/edit_my_image_2.png" alt="Cartoon bear edits" loading="lazy"><figcaption>Original, then <i>t</i><sub>start</sub> = 0.02, 0.04, 0.06 (top row) and 0.10, 0.14, 0.25, 0.50 (bottom row)</figcaption></figure>
+<p>The warm yellow palette survives even at 0.02, where the model generates a man's portrait in matching light. At 0.04–0.06 the red-and-yellow blob becomes an orange object held in a hand. The cartoon bear reappears at 0.10 as a clay-like 3D version, and the original illustration style is back by 0.25.</p>
 
-<h2>Parts 2.3 and 2.4: Stacks and Multiresolution Blending</h2>
+<h4>Editing a web image</h4>
+<figure class="panel"><img src="media/edit_web_image.png" alt="Web image edits" loading="lazy"><figcaption>Original, then <i>t</i><sub>start</sub> = 0.02, 0.04, 0.06 (top row) and 0.10, 0.14, 0.25, 0.50 (bottom row)</figcaption></figure>
+<p>A pencil sketch of a rabbit from the web. The round, light composition reads as a vignetted portrait at 0.02–0.06, and as draped beige fabric at 0.10–0.14. At 0.25 the rabbit returns as a much more realistic, painterly animal, a nice example of a sketch being projected toward photographs; at 0.50 it stays close to the sketch.</p>
 
-<h3>Part 2.3: Gaussian and Laplacian stacks</h3>
-<p>Instead of a pyramid, we use stacks, without downsampling, keeping each image at the original resolution. Level <i>i</i> of the Gaussian stack blurs the original with σ·2<sup>i−1</sup> (σ = 2, 5 levels), using a separable Gaussian for speed.
-   The Laplacian stack stores differences of adjacent Gaussian levels plus the final blurred image, so its levels sum to the original.</p>
-  <div class = "dog-results">
-  <figure><img src="outputs/2.3/3_stacks_apple.png" alt="Apple stacks"><figcaption>Apple: Gaussian (top) and Laplacian (bottom) stacks, levels 0-4.</figcaption></figure>
-  </div>
-  <div class = "dog-results">
-  <figure><img src="outputs/2.3/3_stacks_orange.png" alt="Orange stacks"><figcaption>Orange: Gaussian (top) and Laplacian (bottom) stacks, levels 0-4.</figcaption></figure>
+<h4>Hand-drawn image 1: sunflower</h4>
+<figure class="panel"><img src="media/edit_drawing_1.png" alt="Sunflower drawing edits" loading="lazy"><figcaption>Original, then <i>t</i><sub>start</sub> = 0.02, 0.04, 0.06 (top row) and 0.10, 0.14, 0.25, 0.50 (bottom row)</figcaption></figure>
+<p>A flat drawing on a white background gives the model very little to hold on to. At 0.02 it produces a small framed photo, and at 0.04–0.06 the round yellow head with a dark center becomes a cup of coffee seen from above. At 0.10–0.14 the sketch becomes a photorealistic yellow daisy, which is the most convincing "drawing to photo" result. By 0.25 the hand-drawn strokes return.</p>
 
-</div>
+<h4>Hand-drawn image 2: matcha drink</h4>
+<figure class="panel"><img src="media/edit_drawing_2.png" alt="Matcha drawing edits" loading="lazy"><figcaption>Original, then <i>t</i><sub>start</sub> = 0.02, 0.04, 0.06 (top row) and 0.10, 0.14, 0.25, 0.50 (bottom row)</figcaption></figure>
+<p>The gray dome and straw first become a white ceramic mug (0.02), then a hand holding a white object. At 0.06–0.10 the green fill and orange base come back as a realistic plastic cup with a metal straw. From 0.14 on, the result follows the crayon drawing.</p>
 
-<h3>Part 2.4: Multiresolution blending</h3>
-<p>Each level is blended with its own mask: <code>Σ mask_i · L<sub>A,i</sub> + (1 − mask_i) · L<sub>B,i</sub></code>, where <code>mask_i</code> is the Gaussian stack of the mask. Fine detail switches sharply at the seam while low frequencies transition gradually.</p>
-<div class = "dog-results">
-  <figure><img src="outputs/2.4/2_4_oraple.png" alt="Oraple"><figcaption>Oraple: mask, naive blend (hard seam), multiresolution blend, blurriest mask level.</figcaption></figure>
-</div>
+<h3 id="s32">3.2 Text-guided image editing</h3>
+<p>Same procedure and starting times, but with a prompt describing the edit instead of the generic photo prompt. Lower starting times give the prompt more control; higher ones preserve more of the input.</p>
 
-<figure><img src="outputs/2.4/2_4_levels_grid.png" alt="Oraple levels grid"><figcaption>Per-level apple, orange, mask, and result.</figcaption></figure>
+<h4>Campanile → <span class="prompt">"a white crayon standing on a lake"</span></h4>
+<figure class="panel"><img src="media/text_edit_campanile.png" alt="Campanile text-guided edits" loading="lazy"><figcaption>Original, then <i>t</i><sub>start</sub> = 0.02, 0.04, 0.06 (top row) and 0.10, 0.14, 0.25, 0.50 (bottom row)</figcaption></figure>
+<p>At 0.02–0.06 the prompt wins: a white crayon-like column with a pointed tip rises out of a lake, with the trees reflected around it. At 0.10–0.14 the result is a hybrid, a smooth crayon-shaped shaft with the Campanile's window and proportions. From 0.25 the tower wins and the edit disappears.</p>
 
-<h3>Custom blend 1 (irregular mask, flower): Royal Palace of Madrid inside Lake Tahoe</h3>
-<div class = "fourier-result">
-<figure><img src="outputs/2.4/2_4_madrid_in_tahoe_flower_overview.png" alt="Overview"><figcaption>Inside-mask image, outside-mask image, flower mask, blend.</figcaption></figure>
-<figure><img src="outputs/2.4/2_4_madrid_in_tahoe_flower_levels.png" alt="Levels"><figcaption>Laplacian stack process.</figcaption></figure>
-</div>
-<img src="outputs/2.4/2_4_madrid_in_tahoe_flower_result.jpg" alt="Result">
+<h4>Kitten → <span class="prompt">"a gray furball on a mat"</span></h4>
+<figure class="panel"><img src="media/text_edit_my_image_1.png" alt="Kitten text-guided edits" loading="lazy"><figcaption>Original, then <i>t</i><sub>start</sub> = 0.02, 0.04, 0.06 (top row) and 0.10, 0.14, 0.25, 0.50 (bottom row)</figcaption></figure>
+<p>The low starting times produce a fluffy gray animal sitting on a woven mat. At 0.10–0.14 the furball takes on the kitten's pose and ears, and at 0.25 the kitten is back but with grayer, fluffier fur than the original, which shows the prompt still has a small effect.</p>
 
+<h4>Cartoon bear → <span class="prompt">"a photograph of a bear behind a tree"</span></h4>
+<figure class="panel"><img src="media/text_edit_my_image_2.png" alt="Cartoon bear text-guided edits" loading="lazy"><figcaption>Original, then <i>t</i><sub>start</sub> = 0.02, 0.04, 0.06 (top row) and 0.10, 0.14, 0.25, 0.50 (bottom row)</figcaption></figure>
+<p>At 0.02 the edit is a real brown bear peeking around a tree trunk. At 0.04–0.06 the bear keeps the cartoon's golden color and the tree on the right. At 0.10–0.14 the result is a stylized bear in the cartoon's exact pose. From 0.25 the original cartoon dominates.</p>
 
+<h3 id="s33">3.3 Visual anagrams</h3>
+<p>At every Euler step, I predict a guided velocity for prompt A on the upright image, and a guided velocity for prompt B on the image rotated 180°, rotate that prediction back, and average the two. The final image has to satisfy both prompts at once, one in each orientation.</p>
+\[v = \tfrac12\Big[v_{\text{cfg}}(x_t, t, p_1) + F\big(v_{\text{cfg}}(F(x_t), t, p_2)\big)\Big]\]
+<pre><code>def visual_anagrams(noise, condition_a, condition_b, predict_velocity, w=7, step_size=0.02):
+    def anagram_v(x, t):
+        v1 = cfg_velocity(x, t, condition_a, w, predict_velocity)
+        v2 = rotate180(cfg_velocity(rotate180(x), t, condition_b, w, predict_velocity))
+        return (v1 + v2) / 2
+    x_final, _ = euler_sample(noise, 0, step_size, anagram_v)
+    return x_final</code></pre>
+<p>\(F\) is <code>torch.flip(x, (-2, -1))</code>, a true 180° rotation (both spatial axes), and \(F(F(x)) = x\) checks out.</p>
+<h4>Car ↔ pumpkin (seed 180)</h4>
+<figure class="panel" style="max-width:760px"><img src="media/anagram_views_0.png" alt="Visual anagram 1, upright and rotated" loading="lazy"><figcaption>Left: upright · Right: rotated 180°</figcaption></figure>
+<p>Rotated, the image is clearly a pumpkin with its stem on top. Upright, the same orange mass reads as a rounded car body with dark wheel arches, although the car is the weaker of the two readings.</p>
+<h4>Natural scenery ↔ girl (seed 181)</h4>
+<figure class="panel" style="max-width:760px"><img src="media/anagram_views_1.png" alt="Visual anagram 2, upright and rotated" loading="lazy"><figcaption>Left: upright · Right: rotated 180°</figcaption></figure>
+<p>This one works in both directions. Upright it is a green valley with trees and a desert mesa in the distance; rotated, the two clumps of trees become the girl's hair, and the valley floor becomes her face.</p>
 
-<h3>Custom blend 2 (irregular mask, circle): Froakie inside Greninja</h3>
-<div class = "fourier-result">
-<figure><img src="outputs/2.4/2_4_froakie_in_greninja_circle_overview.png" alt="Overview"><figcaption>Inside-mask image, outside-mask image, circular mask, blend.</figcaption></figure>
-<figure><img src="outputs/2.4/2_4_froakie_in_greninja_circle_levels.png" alt="Levels"><figcaption>Laplacian stack process.</figcaption></figure>
-</div>
-<img src="outputs/2.4/2_4_froakie_in_greninja_circle_result.jpg" alt="Result">
+<h3 id="s34">3.4 Hybrid images</h3>
+<p>Following Factorized Diffusion, each Euler step combines the low frequencies of one guided prediction with the high frequencies of the other. The low-pass filter is a Gaussian blur with kernel size 265 and \(\sigma = 16\); the high-pass is the prediction minus its low-pass.</p>
+\[v = f_{\text{lowpass}}\big(v_{\text{cfg}}(x_t, t, p_1)\big) + f_{\text{highpass}}\big(v_{\text{cfg}}(x_t, t, p_2)\big)\]
+<pre><code>def make_hybrids(noise, condition_a, condition_b, predict_velocity, w=7, step_size=0.02):
+    def hybrid_v(x, t):
+        v1 = cfg_velocity(x, t, condition_a, w, predict_velocity)
+        v2 = cfg_velocity(x, t, condition_b, w, predict_velocity)
+        return lowpass(v1) + v2 - lowpass(v2)
+    x_final, _ = euler_sample(noise, 0, step_size, hybrid_v)
+    return x_final</code></pre>
+<p>Up close you see the high-frequency prompt; shrunk to 64×64 (or viewed from far away), only the low-frequency structure remains.</p>
+<h4>Flowers (near) / guitar (distant)</h4>
+<div class="hybrid"><figure><img src="media/hybrid_0.png" alt="Hybrid 1 full size"><figcaption>Full size (512×512) · near: “a lithograph of flowers”</figcaption></figure>
+<figure class="small"><img src="media/hybrid_0.png" alt="Hybrid 1 at 64×64" width="64" height="64"><figcaption>64×64 · distant: “a lithograph of a guitar”</figcaption></figure></div>
+<p>Up close this is a black-ink bouquet. The guitar comes through in the silhouette: a long thin stem at the top acts as the neck, and the wide dark mass of leaves at the bottom acts as the body.</p>
+<h4>Tiger (near) / mountain (distant)</h4>
+<div class="hybrid"><figure><img src="media/hybrid_1.png" alt="Hybrid 2 full size"><figcaption>Full size (512×512) · near: “a lithograph of a tiger”</figcaption></figure>
+<figure class="small"><img src="media/hybrid_1.png" alt="Hybrid 2 at 64×64" width="64" height="64"><figcaption>64×64 · distant: “a lithograph of a mountain”</figcaption></figure></div>
+<p>Up close, a striped tiger lies on a blue textured ground. The mountain prompt shows up only weakly: at small size, the pale upper half and the dark band below read as a horizon line rather than a peak, so the tiger still dominates. This pair is the less successful of the two.</p>
+</section>
 
+<div class="part" id="partb"><span>Part B</span>Coming soon</div>
+<section id="b">
+<p>Part B results will be added here.</p>
+</section>
 
-<p><b>Thoughts:</b> My first attempt used color-threshold masks from the character images, which left holes in white and black regions, so I switched to geometric masks.
-   I then tried to change the ordering of the pictures, since tahoe inside madrid looked weird. I also experimented with different types of masks, 
-  ended up using the circle mask since it was the most straightforward one to implement and fit froakie's head pretty well. </span></p>
-
-<h2>The Most Important Thing I Learned</h2>
-<p>The most important thing I learned from this project was definitely how an image represented as a sum of frequency bands,
-  and how to correctly think of each filter and convolution in a 2D way. 
-  I also did not know the importance of blurring an image before taking the dx and dy differences, and saw a big difference in how important the gaussian filter is.
-  Moreover, I got to experiment with different hybrid images and I learned how important it is to read documentation because each numpy method works with different sizes
-  and it was very hard to debug when I had the shapes wrong for several images and filters. I also learned the importance of starting early and not procrastinating from this project.
-  It was a fun yet long project to work on.
 </div>
 </body>
 </html>
