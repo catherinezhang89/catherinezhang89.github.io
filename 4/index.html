@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 4A: Image Warping and Mosaicing</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script>
+
+<style>
+  :root {
+    --ink: #163b44;
+    --muted: #5b8a94;
+    --bg: #eef8fa;
+    --card: #ffffff;
+    --border: #cfe9ec;
+    --accent: #0891b2;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    padding: 64px 24px 96px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  header.hero { margin-bottom: 40px; }
+  .kicker {
+    color: var(--accent); font-weight: 600; font-size: 0.95rem;
+    letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 12px;
+  }
+  h1.title { font-size: 2.4rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; margin: 0 0 12px; }
+  .dek { color: var(--muted); font-size: 1.05rem; max-width: 64ch; margin: 0; }
+  .byline { margin-top: 20px; font-size: 0.9rem; color: var(--muted); }
+  .byline a { color: var(--accent); }
+
+  nav.toc {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 22px; margin-bottom: 64px; font-size: 0.92rem;
+  }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+  nav.toc li { color: var(--muted); break-inside: avoid; }
+  @media (max-width: 640px) { nav.toc ol { columns: 1; } }
+  .toc-head { margin: 0 0 6px; font-weight: 600; color: var(--ink); font-size: 0.92rem; }
+
+  section { margin-bottom: 72px; }
+  h2 {
+    font-size: 1.6rem; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em;
+    padding-bottom: 8px; border-bottom: 2px solid var(--border);
+  }
+  h3 { font-size: 1.2rem; font-weight: 600; margin: 48px 0 10px; }
+  h4 { font-size: 1rem; font-weight: 600; margin: 32px 0 8px; }
+  p { max-width: 100ch; }
+  p, li { color: var(--muted); font-size: 1rem; }
+  strong { color: var(--ink); font-weight: 600; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.86rem;
+    background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; color: var(--ink);
+  }
+  pre {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; overflow-x: auto; font-size: 0.84rem; line-height: 1.55; color: var(--ink);
+  }
+  pre code { background: none; border: none; padding: 0; }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    gap: 12px; margin: 16px auto 20px; max-width: calc(var(--cols) * 320px);
+  }
+  @media (max-width: 720px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+  figure { margin: 0; }
+  figure img {
+    display: block; width: 100%; height: auto; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--card);
+  }
+  figcaption { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 6px; line-height: 1.35; }
+  figure.panel { margin: 16px auto 20px; }
+
+  .note {
+    background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent);
+    border-radius: 8px; padding: 12px 16px; margin: 12px 0 8px; color: var(--muted); max-width: none;
+  }
+
+  table { border-collapse: collapse; margin: 16px 0; font-size: 0.92rem; background: var(--card); border: 1px solid var(--border); }
+  th, td { text-align: left; padding: 8px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--ink); font-weight: 600; }
+  td { color: var(--muted); }
+  .part { font-size: 2rem; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 40px; padding-top: 8px; color: var(--ink); }
+  .part span { display: block; color: var(--accent); font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+  .matrix { overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <p class="kicker">CS180 · Project 4A</p>
+  <h1 class="title">Image Warping and Mosaicing</h1>
+  <p class="dek">Recovering homographies from point correspondences, inverse warping with nearest-neighbor and bilinear interpolation, rectification, and blending photos into mosaics.</p>
+  <p class="byline">Catherine Zhang · <a href="../index.html">← Back to portfolio</a></p>
+</header>
+
+<nav class="toc">
+  <p class="toc-head">Part A · Image Warping and Mosaicing</p>
+  <ol>
+    <li><a href="#a1">Shoot the pictures</a></li>
+    <li><a href="#a2">Recover homographies</a></li>
+    <li><a href="#a3">Warp the images</a></li>
+    <li><a href="#a4">Blend into a mosaic</a></li>
+  </ol>
+</nav>
+
+<div class="part" id="parta"><span>Part A</span>Image Warping and Mosaicing</div>
+
+<!-- ============================== A.1 ============================== -->
+<section id="a1">
+<h2>A.1 Shoot the Pictures</h2>
+<p>For each set, I kept the center of projection fixed and only rotated the phone between shots, so the two photos are related by a projective transformation (a homography). The pairs overlap substantially, which leaves plenty of shared features for clicking correspondences. The photos are 600×800.</p>
+
+<h4>Set 1: Painted mural</h4>
+<figure class="panel" style="max-width:720px"><img src="media/a1_painting.jpg" alt="Two overlapping photos of a painted mural" loading="lazy"><figcaption>Image 1 (left) and image 2 (right)</figcaption></figure>
+
+<h4>Set 2: Courtyard tree</h4>
+<figure class="panel" style="max-width:720px"><img src="media/a1_tree.jpg" alt="Two overlapping photos of a tree in a courtyard" loading="lazy"><figcaption>Image 1 (left) and image 2 (right)</figcaption></figure>
+
+<h4>Set 3: Gateway</h4>
+<figure class="panel" style="max-width:720px"><img src="media/a1_gateway.jpg" alt="Two overlapping photos of a building atrium" loading="lazy"><figcaption>Image 1 (left) and image 2 (right)</figcaption></figure>
+</section>
+
+<!-- ============================== A.2 ============================== -->
+<section id="a2">
+<h2>A.2 Recover Homographies</h2>
+<p>A homography maps a point \(p = (x, y)\) in image 1 to \(p' = (x', y')\) in image 2. In homogeneous coordinates it is a 3×3 matrix with the bottom-right entry fixed to 1, leaving 8 unknowns:</p>
+\[
+\begin{bmatrix} w x' \\ w y' \\ w \end{bmatrix} =
+\begin{bmatrix} h_{11} & h_{12} & h_{13} \\ h_{21} & h_{22} & h_{23} \\ h_{31} & h_{32} & 1 \end{bmatrix}
+\begin{bmatrix} x \\ y \\ 1 \end{bmatrix}
+\]
+<p>The output comes back scaled by \(w = h_{31}x + h_{32}y + 1\), so the actual pixel is found by dividing: \(x' = (h_{11}x + h_{12}y + h_{13})/w\). Multiplying both sides by the denominator makes each equation linear in the unknowns, so every correspondence gives two rows of a linear system \(A\mathbf h = \mathbf b\):</p>
+\[
+\begin{bmatrix}
+x & y & 1 & 0 & 0 & 0 & -x x' & -y x' \\
+0 & 0 & 0 & x & y & 1 & -x y' & -y y'
+\end{bmatrix}
+\mathbf h =
+\begin{bmatrix} x' \\ y' \end{bmatrix},
+\qquad
+\mathbf h = [h_{11}, h_{12}, h_{13}, h_{21}, h_{22}, h_{23}, h_{31}, h_{32}]^\top
+\]
+<p>Four points give exactly 8 equations, but then every click error is fit perfectly. I clicked 11 correspondences per pair, so \(A\) is 22×8 and the system is overdetermined; I solve it with least squares, which minimizes \(\|A\mathbf h - \mathbf b\|^2\) and averages out click noise.</p>
+<!-- <pre><code>def build_system(im1_pts, im2_pts):
+    rows, rhs = [], []
+    for (x, y), (xp, yp) in zip(im1_pts, im2_pts):
+        rows.append([x, y, 1, 0, 0, 0, -x*xp, -y*xp]); rhs.append(xp)
+        rows.append([0, 0, 0, x, y, 1, -x*yp, -y*yp]); rhs.append(yp)
+    return np.array(rows, float), np.array(rhs, float)   # A: (2n, 8), b: (2n,)
+
+def computeH(im1_pts, im2_pts):
+    assert len(im1_pts) == len(im2_pts) >= 4
+    A, b = build_system(im1_pts, im2_pts)
+    h, *_ = np.linalg.lstsq(A, b, rcond=None)
+    return np.append(h, 1).reshape(3, 3)
+
+def apply_H(H, pts):
+    P = np.hstack([pts, np.ones((len(pts), 1))])   # n×3, homogeneous
+    Q = P @ H.T
+    return Q[:, :2] / Q[:, 2:3]                    # divide by w</code></pre> -->
+
+<h3>Correspondences</h3>
+<p>Points were clicked in the same order on both images; matching numbers mark the same physical feature.</p>
+<figure class="panel" style="max-width:720px"><img src="media/a2_painting_points.jpg" alt="Correspondences on the mural pair" loading="lazy"><figcaption>Mural: 11 correspondences</figcaption></figure>
+<figure class="panel" style="max-width:720px"><img src="media/a2_tree_points.jpg" alt="Correspondences on the tree pair" loading="lazy"><figcaption>Courtyard tree: 11 correspondences</figcaption></figure>
+<figure class="panel" style="max-width:720px"><img src="media/a2_gateway_points.jpg" alt="Correspondences on the gateway pair" loading="lazy"><figcaption>Gateway: 11 correspondences</figcaption></figure>
+
+<h3>System of equations (mural)</h3>
+<p>The first two correspondences, \((525, 501) \to (239, 510)\) and \((468, 457) \to (192, 469)\), give the first four rows of the 22×8 system:</p>
+\[
+\begin{bmatrix}
+525 & 501 & 1 & 0 & 0 & 0 & -125475 & -119739 \\
+0 & 0 & 0 & 525 & 501 & 1 & -267750 & -255510 \\
+468 & 457 & 1 & 0 & 0 & 0 & -89856 & -87744 \\
+0 & 0 & 0 & 468 & 457 & 1 & -219492 & -214333 \\
+& & & & \vdots & & &
+\end{bmatrix}
+\mathbf h =
+\begin{bmatrix} 239 \\ 510 \\ 192 \\ 469 \\ \vdots \end{bmatrix}
+\]
+
+<h3>Recovered homographies</h3>
+<div class="matrix">
+\[
+H_{\text{mural}} = \begin{bmatrix} 1.742 & -0.0774 & -485.4 \\ 0.5619 & 1.465 & -199.4 \\ 1.310\times10^{-3} & -1.247\times10^{-4} & 1 \end{bmatrix}
+\quad
+H_{\text{tree}} = \begin{bmatrix} 0.9010 & 0.0535 & 70.39 \\ -0.1057 & 0.9920 & 5.602 \\ -2.165\times10^{-4} & 6.845\times10^{-5} & 1 \end{bmatrix}
+\]
+\[
+H_{\text{Gateway}} = \begin{bmatrix} 1.180 & 0.00656 & -103.8 \\ 0.1173 & 1.117 & -47.06 \\ 2.849\times10^{-4} & 2.637\times10^{-5} & 1 \end{bmatrix}
+\]
+</div>
+<p>The third column is the translation between the shots, and the small bottom-row entries \(h_{31}, h_{32}\) are what make the transform projective rather than affine. As a check, I mapped every image-1 point through \(H\) and measured its distance to the clicked image-2 point:</p>
+<table>
+  <tr><th>Set</th><th>Correspondences</th><th>Mean error (px)</th><th>Max error (px)</th></tr>
+  <tr><td>Mural</td><td>11</td><td>1.52</td><td>3.37</td></tr>
+  <tr><td>Courtyard tree</td><td>11</td><td>1.04</td><td>2.08</td></tr>
+  <tr><td>Gateway</td><td>11</td><td>0.86</td><td>1.75</td></tr>
+</table>
+<p>All points reproject within a few pixels, which is consistent with click noise.</p>
+</section>
+
+<!-- ============================== A.3 ============================== -->
+<section id="a3">
+<h2>A.3 Warp the Images</h2>
+<p>I use <strong>inverse warping</strong>. Forward warping (pushing each source pixel through \(H\)) leaves holes wherever the transform stretches the image. Instead, for every pixel of the output I ask where it came from in the source, using \(H^{-1}\), and sample the source there. Every output pixel gets exactly one value, so there are no holes.</p>
+<ol>
+  <li><strong>Output size:</strong> push the source's 4 corners through \(H\); their min and max give the bounding box of the warped image (possibly with negative coordinates).</li>
+  <li><strong>Inverse map:</strong> build a grid of every output pixel in that box and map it through \(H^{-1}\) to get (generally non-integer) source coordinates \((s_x, s_y)\).</li>
+  <li><strong>Alpha mask:</strong> output pixels whose \((s_x, s_y)\) fall outside the source get alpha 0 and stay transparent.</li>
+  <li><strong>Sample:</strong> read the source color at \((s_x, s_y)\) with one of two interpolation methods.</li>
+</ol>
+<p>Pixel centers sit at integer coordinates, so pixel <code>im[r, c]</code> is the point \((x, y) = (c, r)\) and the valid range is \(0 \le x \le w-1\).</p>
+<!-- <pre><code>def _inverse_map(im, H, bbox=None):
+    xmin, ymin, xmax, ymax = bbox if bbox is not None else output_bbox(im, H)
+    xs, ys = np.meshgrid(np.arange(xmin, xmax + 1), np.arange(ymin, ymax + 1))
+    src = apply_H(np.linalg.inv(H), np.stack([xs.ravel(), ys.ravel()], axis=1))
+    sx, sy = src[:, 0].reshape(xs.shape), src[:, 1].reshape(xs.shape)
+    h, w = im.shape[:2]
+    valid = (sx >= 0) &amp; (sx <= w - 1) &amp; (sy >= 0) &amp; (sy <= h - 1)   # alpha mask
+    return sx, sy, valid, (xmin, ymin)</code></pre> -->
+
+<h3>Nearest neighbor</h3>
+<p>Round \((s_x, s_y)\) to the closest pixel and copy its color: one lookup per output pixel.</p>
+<!-- <pre><code>def warpImageNearestNeighbor(im, H, bbox=None):
+    sx, sy, valid, offset = _inverse_map(im, H, bbox)
+    out = np.zeros(sx.shape + im.shape[2:])
+    out[valid] = im[np.round(sy[valid]).astype(int), np.round(sx[valid]).astype(int)]
+    return out, valid.astype(float), offset</code></pre> -->
+
+<h3>Bilinear</h3>
+<p>Take the 4 pixels surrounding \((s_x, s_y)\) and weight each by its closeness. With \(x_0 = \lfloor s_x \rfloor\), \(y_0 = \lfloor s_y \rfloor\), \(d_x = s_x - x_0\), \(d_y = s_y - y_0\):</p>
+\[
+I = (1-d_x)(1-d_y)\,I_{00} + d_x(1-d_y)\,I_{10} + (1-d_x)\,d_y\,I_{01} + d_x d_y\,I_{11}
+\]
+<!-- <pre><code>def warpImageBilinear(im, H, bbox=None):
+    sx, sy, valid, offset = _inverse_map(im, H, bbox)
+    h, w = im.shape[:2]
+    out = np.zeros(sx.shape + im.shape[2:])
+    x, y = sx[valid], sy[valid]
+    x0 = np.clip(np.floor(x).astype(int), 0, w - 2)
+    y0 = np.clip(np.floor(y).astype(int), 0, h - 2)
+    dx, dy = (x - x0)[:, None], (y - y0)[:, None]
+    out[valid] = ((1-dx)*(1-dy)*im[y0, x0]   + dx*(1-dy)*im[y0, x0+1] +
+                  (1-dx)*dy    *im[y0+1, x0] + dx*dy    *im[y0+1, x0+1])
+    return out, valid.astype(float), offset</code></pre> -->
+
+<h3>Rectification</h3>
+<p>To test the warp, I rectified objects I know are rectangular. There is no second photo: I clicked the object's 4 corners (top-left, top-right, bottom-right, bottom-left) and mapped them to an axis-aligned rectangle with the object's real aspect ratio (width ÷ height). The rectangle is sized to match the object's size in the photo, and the output is cropped to the rectangle plus a margin so far-away parts of the scene don't blow up the canvas.</p>
+
+<h4>Exit sign (square, aspect 1.0)</h4>
+<figure class="panel"><img src="media/a3_rect1_comparison.png" alt="Exit sign rectification" loading="lazy"><figcaption>Original with clicked corners · nearest neighbor · bilinear (dashed red = target square)</figcaption></figure>
+<figure class="panel" style="max-width:720px"><img src="media/a3_rect1_crop_compare.png" alt="Zoomed nearest neighbor vs bilinear, exit sign" loading="lazy"><figcaption>Zoomed crop: nearest neighbor (left) vs. bilinear (right)</figcaption></figure>
+
+<h4>Floor directory (portrait, aspect 0.67)</h4>
+<figure class="panel"><img src="media/a3_rect2_comparison.png" alt="Floor directory rectification" loading="lazy"><figcaption>Original with clicked corners · nearest neighbor · bilinear (dashed red = target rectangle)</figcaption></figure>
+<figure class="panel" style="max-width:720px"><img src="media/a3_rect2_crop_compare.png" alt="Zoomed nearest neighbor vs bilinear, floor directory" loading="lazy"><figcaption>Zoomed crop: nearest neighbor (left) vs. bilinear (right)</figcaption></figure>
+<p>Both signs come out square to the image axes with straight edges, while the wall around them is skewed, as expected: only the plane of the sign is rectified.</p>
+
+<h3>Nearest neighbor vs. bilinear</h3>
+<table>
+  <tr><th>Image</th><th>Output size</th><th>Nearest neighbor</th><th>Bilinear</th><th>Slowdown</th></tr>
+  <tr><td>Exit sign</td><td>202×202</td><td>0.003 s</td><td>0.007 s</td><td>2.2×</td></tr>
+  <tr><td>Floor directory</td><td>736×1165</td><td>0.084 s</td><td>0.158 s</td><td>1.9×</td></tr>
+</table>
+<p><strong>Quality:</strong> nearest neighbor produces jagged, stair-stepped edges on the letters and the sign borders, because each output pixel snaps to one source pixel. Bilinear edges are smooth, at the cost of slight blur, since it averages neighboring pixels. <strong>Speed:</strong> bilinear does 4 lookups and a weighted sum per pixel instead of 1 lookup, and was about 2× slower here. Both are fast once vectorized, so I use bilinear for all the mosaics.</p>
+</section>
+
+<!-- ============================== A.4 ============================== -->
+<section id="a4">
+<h2>A.4 Blend the Images into a Mosaic</h2>
+<h3>Procedure</h3>
+<ol>
+  <li><strong>Reference frame.</strong> The second image of each pair is the reference and stays unwarped. \(H\) from A.2 maps image 1 into its frame, and image 1 is warped with <code>warpImageBilinear</code>.</li>
+  <li><strong>Canvas (one-shot).</strong> The canvas is the union of the warped image-1 bounding box and the image-2 box. Each image is placed on it at the offset returned by the warp.</li>
+  <li><strong>Weights.</strong> Each image gets a weight map in its own frame: the distance to the nearest image edge (bwdist of the border), 0 at the edges and highest in the center. The weight map is warped with the same \(H\) as a 4th channel, so it stays aligned with its pixels.</li>
+  <li><strong>Feathering.</strong> \(\text{out} = \sum_i w_i\,\text{im}_i \,/\, \sum_i w_i\). Across the overlap, one image's weight falls as the other's rises, so the color fades smoothly instead of jumping at a seam.</li>
+  <li><strong>2-band blend.</strong> Feathering averages the two images 50/50 in the middle of the overlap, so any small misalignment ghosts fine detail. I split each image into a low band (Gaussian blur, \(\sigma = 4\)) and a high band (image − blur). The low bands are feathered, giving smooth color transitions; the high band at each pixel comes from whichever image has the larger weight, so details stay sharp and never double.</li>
+</ol>
+<!-- <pre><code>H = computeH(im1_pts, im2_pts)                          # im1 -> im2 (reference)
+canvas_box = union(output_bbox(im1, H), output_bbox(im2, I))
+im1c, w1 = warp_onto_canvas(im1, H, canvas_box)        # image + edge-distance weights
+im2c, w2 = warp_onto_canvas(im2, I, canvas_box)
+feather = blend_feather([im1c, im2c], [w1, w2])        # sum(w*im) / sum(w)
+twoband = blend_two_band([im1c, im2c], [w1, w2])       # low: feathered, high: max weight</code></pre> -->
+<div class="note">The first version of the 2-band blend left a bright fringe along the mosaic's outer edges: the Gaussian blur pulled in the black pixels outside each image, which corrupted the high band at the border. Blurring with a normalized mask, <code>blur(im·mask) / blur(mask)</code>, fixed it.</div>
+
+<figure class="panel" style="max-width:640px"><img src="media/a4_painting_weights.jpg" alt="Blend weight maps" loading="lazy"><figcaption>Weight maps for the mural: warped image 1 (left) and the reference image 2 (right)</figcaption></figure>
+
+<h3>Mosaic 1: Painted mural</h3>
+<figure class="panel" style="max-width:720px"><img src="media/a1_painting.jpg" alt="Mural source images" loading="lazy"><figcaption>Source images</figcaption></figure>
+<figure class="panel"><img src="media/a4_painting_compare.jpg" alt="Mural mosaic: overwrite, feathered, 2-band" loading="lazy"><figcaption>Overwrite (no blending) · feathered · 2-band blend</figcaption></figure>
+<figure class="panel" style="max-width:760px"><img src="media/a4_painting_twoband.jpg" alt="Final mural mosaic" loading="lazy"><figcaption>Final mosaic (2-band blend)</figcaption></figure>
+<p>Overwriting leaves a hard vertical seam and a visible brightness step in the sky. Feathering removes both; the 2-band blend keeps the painted brushwork sharp across the overlap.</p>
+
+<h3>Mosaic 2: Courtyard tree</h3>
+<figure class="panel" style="max-width:720px"><img src="media/a1_tree.jpg" alt="Tree source images" loading="lazy"><figcaption>Source images</figcaption></figure>
+<figure class="panel"><img src="media/a4_tree_compare.jpg" alt="Tree mosaic: overwrite, feathered, 2-band" loading="lazy"><figcaption>Overwrite (no blending) · feathered · 2-band blend</figcaption></figure>
+<figure class="panel" style="max-width:760px"><img src="media/a4_tree_twoband.jpg" alt="Final tree mosaic" loading="lazy"><figcaption>Final mosaic (2-band blend)</figcaption></figure>
+<p>This set shows the difference between the two blends most clearly. The leaves moved slightly between shots, so feathering averages two different versions of the canopy and the tree looks doubled and blurry. The 2-band blend takes each leaf's detail from a single image, and the tree stays sharp.</p>
+
+<h3>Mosaic 3: Gateway interior</h3>
+<figure class="panel" style="max-width:720px"><img src="media/a1_gateway.jpg" alt="Atrium source images" loading="lazy"><figcaption>Source images</figcaption></figure>
+<figure class="panel"><img src="media/a4_gateway_compare.jpg" alt="Atrium mosaic: overwrite, feathered, 2-band" loading="lazy"><figcaption>Overwrite (no blending) · feathered · 2-band blend</figcaption></figure>
+<figure class="panel" style="max-width:760px"><img src="media/a4_gateway_twoband.jpg" alt="Final atrium mosaic" loading="lazy"><figcaption>Final mosaic (2-band blend)</figcaption></figure>
+<p>The overwrite version shows a faint seam in the ceiling where the exposures differ; both blends hide it, and the railings and staircase line up across the overlap.</p>
+</section>
+
+</div>
+</body>
+</html>
